@@ -17,11 +17,10 @@ class DatabaseConnection:
     """Provide database connection along with Context Manager"""
     def __init__(self,):
         """Constructor"""
-        self._url = f"postgresql+psycopg2://{Config.get(OsVariable.POSTGRES_USER)}" \
-                    f":{Config.get(OsVariable.POSTGRES_PASS)}" \
-                    f"@{Config.get(OsVariable.POSTGRES_HOST)}" \
-                    f":{Config.get(OsVariable.POSTGRES_PORT)}:" \
-                    f"/{Config.get(OsVariable.POSTGRES_DATABASE)}"
+        self._url = f"postgresql+psycopg2://" \
+                    f"{Config.get(OsVariable.POSTGRES_USER)}:{Config.get(OsVariable.POSTGRES_PASSWORD)}" \
+                    f"@{Config.get(OsVariable.POSTGRES_HOST)}:{Config.get(OsVariable.POSTGRES_PORT)}" \
+                    f"/{Config.get(OsVariable.POSTGRES_DB)}"
         self._conn = None
 
     def connect(self,):
@@ -55,10 +54,10 @@ class DatabaseSessionManager:  # pylint: disable=too-few-public-methods
     """Session Manager controls database session connections"""
     def __init__(self,):
         """Contructor"""
-        self._url = f"postgresql+asyncpg://{Config.get(OsVariable.POSTGRES_USER)}:" \
-                    f"{Config.get(OsVariable.POSTGRES_PASS)}" \
-                    f"@{Config.get(OsVariable.POSTGRES_HOST)}:" \
-                    f"{Config.get(OsVariable.POSTGRES_PORT)}/{Config.get(OsVariable.POSTGRES_DATABASE)}"
+        self._url = f"postgresql+asyncpg://" \
+                    f"{Config.get(OsVariable.POSTGRES_USER)}:{Config.get(OsVariable.POSTGRES_PASSWORD)}" \
+                    f"@{Config.get(OsVariable.POSTGRES_HOST)}:{Config.get(OsVariable.POSTGRES_PORT)}" \
+                    f"/{Config.get(OsVariable.POSTGRES_DB)}"
         self._engine = create_async_engine(url=self._url, pool_size=2)
         self._sessionmaker = async_sessionmaker(autocommit=False, bind=self._engine)
 

@@ -1,4 +1,4 @@
-""" Config """
+"""Config"""
 import os
 
 
@@ -7,8 +7,8 @@ class OsVariable:  # pylint: disable=too-few-public-methods
     POSTGRES_HOST = "POSTGRES_HOST"
     POSTGRES_PORT = "POSTGRES_PORT"
     POSTGRES_USER = "POSTGRES_USER"
-    POSTGRES_PASS = "POSTGRES_PASS"
-    POSTGRES_DATABASE = "POSTGRES_DATABASE"
+    POSTGRES_PASSWORD = "POSTGRES_PASSWORD"
+    POSTGRES_DB = "POSTGRES_DB"
 
 
 class Config:  # pylint: disable=too-few-public-methods

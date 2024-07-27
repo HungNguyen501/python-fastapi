@@ -10,8 +10,8 @@ PYTHON='python3.11'
 export POSTGRES_HOST=localhost
 export POSTGRES_PORT=5432
 export POSTGRES_USER=local
-export POSTGRES_PASS=local
-export POSTGRES_DATABASE=local
+export POSTGRES_PASSWORD=local
+export POSTGRES_DB=local
 
 check_pep8 () {
     if [[ -z ${1} ]]; then
