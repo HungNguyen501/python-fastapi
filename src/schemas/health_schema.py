@@ -1,3 +1,4 @@
+"""Health Schema module"""
 from pydantic import BaseModel
 
 

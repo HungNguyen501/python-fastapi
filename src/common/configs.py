@@ -3,7 +3,7 @@ import os
 
 
 class OsVariable:  # pylint: disable=too-few-public-methods
-    """ Os environment variable keys """
+    """Os environment variable keys"""
     POSTGRES_HOST = "POSTGRES_HOST"
     POSTGRES_PORT = "POSTGRES_PORT"
     POSTGRES_USER = "POSTGRES_USER"
@@ -12,8 +12,7 @@ class OsVariable:  # pylint: disable=too-few-public-methods
 
 
 class Config:  # pylint: disable=too-few-public-methods
-    """ Config """
-
+    """Config"""
     @staticmethod
     def get(key):
         """Get os' env variable
@@ -23,6 +22,5 @@ class Config:  # pylint: disable=too-few-public-methods
 
         Returns:
             variable value
-
         """
         return os.getenv(key)

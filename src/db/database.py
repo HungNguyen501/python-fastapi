@@ -1,45 +1,72 @@
+"""Database Connection and Session Manager modules"""
 from functools import cache
+from typing import AsyncIterator
 import contextlib
-from typing import AsyncIterator, Annotated
 
-from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession, AsyncConnection
+from sqlalchemy.ext.asyncio import (
+    async_sessionmaker,
+    AsyncSession,
+    create_async_engine,
+)
 from sqlalchemy import create_engine
-from src.db.models import BaseModel
-
-    
-def create_tables():
-    BaseModel.metadata.create_all(create_engine(url=f"postgresql+psycopg2://local:local@localhost:5432/local"))
+from src.common.configs import Config, OsVariable
+from src.db.models.base_model import BaseModel
 
 
-class DatabaseSessionManager:
-    def __init__(self, url: str):
-        self._engine = create_async_engine(url=url, pool_size=2)
+class DatabaseConnection:
+    """Provide database connection along with Context Manager"""
+    def __init__(self,):
+        """Constructor"""
+        self._url = f"postgresql+psycopg2://{Config.get(OsVariable.POSTGRES_USER)}" \
+                    f":{Config.get(OsVariable.POSTGRES_PASS)}" \
+                    f"@{Config.get(OsVariable.POSTGRES_HOST)}" \
+                    f":{Config.get(OsVariable.POSTGRES_PORT)}:" \
+                    f"/{Config.get(OsVariable.POSTGRES_DATABASE)}"
+        self._conn = None
+
+    def connect(self,):
+        """Connect to DB"""
+        self._conn = create_engine(url=self._url)
+
+    def disconnect(self,):
+        """Disconnect from DB"""
+        self._conn.dispose()
+
+    def create_tables(self,):
+        """Create all tables in metadata"""
+        BaseModel.metadata.create_all(bind=self._conn)
+
+    def drop_tables(self,):
+        """Drop all tables in metadata"""
+        BaseModel.metadata.drop_all(bind=self._conn)
+
+    def __enter__(self,):
+        """Enter context"""
+        self.connect()
+        return self
+
+    def __exit__(self, *_):
+        """Exit context"""
+        self.disconnect()
+
+
+@cache
+class DatabaseSessionManager:  # pylint: disable=too-few-public-methods
+    """Session Manager controls database session connections"""
+    def __init__(self,):
+        """Contructor"""
+        self._url = f"postgresql+asyncpg://{Config.get(OsVariable.POSTGRES_USER)}:" \
+                    f"{Config.get(OsVariable.POSTGRES_PASS)}" \
+                    f"@{Config.get(OsVariable.POSTGRES_HOST)}:" \
+                    f"{Config.get(OsVariable.POSTGRES_PORT)}/{Config.get(OsVariable.POSTGRES_DATABASE)}"
+        self._engine = create_async_engine(url=self._url, pool_size=2)
         self._sessionmaker = async_sessionmaker(autocommit=False, bind=self._engine)
-
-    async def close(self):
-        if self._engine is None:
-            raise Exception("DatabaseSessionManager is not initialized")
-        await self._engine.dispose()
-
-        self._engine = None
-        self._sessionmaker = None
-
-    @contextlib.asynccontextmanager
-    async def connect(self) -> AsyncIterator[AsyncConnection]:
-        if self._engine is None:
-            raise Exception("DatabaseSessionManager is not initialized")
-
-        async with self._engine.begin() as connection:
-            try:
-                yield connection
-            except Exception:
-                await connection.rollback()
-                raise
 
     @contextlib.asynccontextmanager
     async def session(self) -> AsyncIterator[AsyncSession]:
+        """Provision session from session maker"""
         if self._sessionmaker is None:
-            raise Exception("DatabaseSessionManager is not initialized")
+            raise TypeError("DatabaseSessionManager is not initialized")
 
         session = self._sessionmaker()
         try:
@@ -50,13 +77,9 @@ class DatabaseSessionManager:
         finally:
             await session.close()
 
-@cache
-def _get_session_manager():
-    return DatabaseSessionManager(url="postgresql+asyncpg://local:local@localhost:5432/local")
-
 
 async def get_db_session():
-    async with _get_session_manager().session() as session:
+    """Retrive database session from DatabaseSessionManager"""
+    session_manager = DatabaseSessionManager()
+    async with session_manager.session() as session:
         yield session
-
-# DbSession = Annotated[AsyncSession, Depends(get_db_session)]
