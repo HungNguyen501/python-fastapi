@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy import create_engine
 from src.common.configs import Config, OsVariable
-from src.db.models.base_model import BaseModel
+from src.db.models import BaseModel
 
 
 class DatabaseConnection:
@@ -62,11 +62,10 @@ class DatabaseSessionManager:  # pylint: disable=too-few-public-methods
         self._sessionmaker = async_sessionmaker(autocommit=False, bind=self._engine)
 
     @contextlib.asynccontextmanager
-    async def session(self) -> AsyncIterator[AsyncSession]:
+    async def get_session(self) -> AsyncIterator[AsyncSession]:
         """Provision session from session maker"""
         if self._sessionmaker is None:
             raise TypeError("DatabaseSessionManager is not initialized")
-
         session = self._sessionmaker()
         try:
             yield session
@@ -75,10 +74,11 @@ class DatabaseSessionManager:  # pylint: disable=too-few-public-methods
             raise
         finally:
             await session.close()
+            
 
 
 async def get_db_session():
     """Retrive database session from DatabaseSessionManager"""
     session_manager = DatabaseSessionManager()
-    async with session_manager.session() as session:
+    async with session_manager.get_session() as session:
         yield session

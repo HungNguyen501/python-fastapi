@@ -13,7 +13,7 @@ from src.schemas.user_schema import (
     UserInDB,
     UserChangeGeneralResonpse,
 )
-from src.common.exception_handler import alert
+from src.common.exception_handler import suppress_error
 from src.common.exceptions import NotFoundException, InvalidInputException
 
 
@@ -23,6 +23,7 @@ class UserService(BaseService):
         """Constructor"""
         self.repository = repository
 
+    @suppress_error(error_name="user_update api", response=UserChangeGeneralResonpse(message="System errors"))
     async def get(self, uuid: UUID) -> UserInDB:
         """Retrive user record by UUID
 
@@ -56,7 +57,7 @@ class UserService(BaseService):
         await self.repository.create(data)
         return UserChangeGeneralResonpse(message="created")
 
-    @alert(alert_name="abc", suppress=True, exc=AttributeError)
+    @suppress_error(error_name="user_update api", response=UserChangeGeneralResonpse(message="System errors"))
     async def update(self, uuid: UUID, data: UserUpdate) -> UserChangeGeneralResonpse:
         """Update user data based its UUID
 
@@ -73,6 +74,7 @@ class UserService(BaseService):
             raise NotFoundException("User not found") from exc
         return UserChangeGeneralResonpse(message="updated")
 
+    @suppress_error(error_name="user_update api", response=UserChangeGeneralResonpse(message="System errors"))
     async def delete(self, uuid: UUID) -> UserChangeGeneralResonpse:
         """Remove user data based its UUID
 
@@ -88,6 +90,7 @@ class UserService(BaseService):
             raise NotFoundException("User not found") from exc
         return UserChangeGeneralResonpse(message="deleted")
 
+    @suppress_error(error_name="user_update api", response=UserChangeGeneralResonpse(message="System errors"))
     async def list_users(self, start: int, page_size: int) -> Tuple[int, List[UserInDB]]:
         """List users in User table
 

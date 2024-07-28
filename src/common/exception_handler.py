@@ -1,6 +1,8 @@
 """Exception Handler module"""
 import functools
+from typing import Any
 from http import HTTPStatus
+import traceback
 
 from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
@@ -24,18 +26,21 @@ async def unicorn_exception_handler(request: Request, exc: UnicornException):  #
     )
 
 
-def alert(alert_name, exceptions=(Exception,), suppress=False, exc=None):  # pylint: disable=unused-argument
-    """ DMP alert decorator """
+def suppress_error(error_name: str, response: Any, exceptions=(Exception,)):
+    """Customize exception handling by:
+    - Control output log in console
+    - Send alert to Email/ Slack Channel
+    - Return intentional response
+    """
     def wrapper(func):
         @functools.wraps(func)
         async def inner(*args, **kwargs):
             try:
                 return await func(*args, **kwargs)
-            except exceptions as exc:
-                if suppress:
-                    logger.error(f"Suppressed error for {alert_name}: {exc}")
-                    return exc
-                raise
+            except exceptions:
+                logger.error(f"Suppressed {error_name} error: {traceback.format_exc()}")
+                # Could send error traceback to Slack channel here
+                return response
 
         return inner
     return wrapper
