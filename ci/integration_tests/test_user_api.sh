@@ -7,51 +7,99 @@ call_user_get () {
 }
 
 call_user_list () {
-    curl --location "${API_URI}/user/list?start=0" 2>/dev/null
+    curl --location "${API_URI}/user/list?start=0&page_size=200" 2>/dev/null
 }
 
 call_user_create () {
-    curl -conmect-timeout 5 --location "${API_URI}/user" \
+    curl --connect-timeout 5 --location --request POST "${API_URI}/user" \
         --header 'Content-Type: application/json' \
-        --data ${1}
+        --data "${1}"
 }
 
 call_user_update () {
-    curl --connect-timeout 5 --location --request PUT "${API_URI}/user?uuid=accfd78c-f0dc-4683-90bb-d63de643e852" \
+    curl --connect-timeout 5 --location --request PUT "${API_URI}/user?uuid=${1}" \
     --header 'Content-Type: application/json' \
-    --data ${1}
+    --data "${2}"
 }
 
 call_user_delete () {
     curl --connect-timeout 5 --location --request DELETE "${API_URI}/user?uuid=${1}"
 }
 
-test_health_check () {
-    response=$(curl --connect-timeout 5 --location "${API_URI}/health" 2>/dev/null)
-    if [ "${response}" == "{\"message\":\"200 OK\"}" ]; then
-        printf "API is healthy\n"
-    else
-        printf "API is down\n"
+printf "[test_health_check] "
+response=$(curl --connect-timeout 5 --location "${API_URI}/health" 2>/dev/null)
+if [ "${response}" == "{\"message\":\"200 OK\"}" ]; then
+    printf "...API is healthy\n"
+else
+    printf "...API is down\n"
+    exit 1
+fi
+
+printf "[test_empty_user_list] "
+if [ "$(call_user_list)" != "{\"total\":0,\"count\":0,\"users\":[]}" ]; then
+    printf "...Failed\n"
+    exit 1
+fi
+printf "...Passed\n"
+
+printf "[test_create_user] "
+for data in '{"name": "user1"}' '{"name": "user2"}' '{"name": "user3"}' '{"name": "user4"}' '{"name": "user5"}' '{"name": "user6"}' '{"name": "user7"}'; do
+    if [ $(call_user_create "${data}" 2>/dev/null) != '{"message":"created"}' ]; then
+        printf "...Failed\n"
         exit 1
     fi
-}
+done
+count_users=$(call_user_list | jq --raw-output '.users.[].uuid' | wc -l)
+if [ ${count_users} != 7 ]; then
+    printf "...Failed (count_user: actual=${count_users} <> expect=7)\n"
+    exit 1
+fi
+printf "...Passed\n"
 
-test_empty_user_list () {
-    if [ "$(call_user_list)" != "{\"total\":0,\"count\":0,\"users\":[]}" ]; then
-        printf "test_empty_user_list Failed\n"
+printf "[test_update_user] "
+for uuid in $(call_user_list | jq --raw-output '.users.[].uuid' | tail -5); do
+    if [ $(call_user_update "${uuid}" '{"name": "fake1"}' 2>/dev/null) != '{"message":"updated"}' ]; then
+        printf "...Failed\n"
         exit 1
     fi
-}
+done
+if [ ${count_users} != 7 ]; then
+    printf "...Failed (count_user: actual=${count_users} <> expect=7)\n"
+    exit 1
+fi
+printf "...Passed\n"
 
-test_user_get_with_wrong_uuid () {
-    actual="{'detail':[{'type':'uuid_parsing','loc':['query','uuid'],'msg':" \
-        'Input should be a valid UUID, invalid group count: expected 5, found 2'," \
-        'input':'-1','ctx':{'error':'invalid group count: expected 5, found 2'}}]}"
-    # if [ $(call_user_get -1) != ${actual} ]; then
-    #     printf "test_user_get_with_wrong_uuid Failed\n"
-    # fi
-    echo $actual
-}
+printf "[test_delete_user] "
+for uuid in $(call_user_list | jq --raw-output '.users.[].uuid' | tail -5); do
+    if [ $(call_user_delete "${uuid}" 2>/dev/null) != '{"message":"deleted"}' ]; then
+        printf "...Failed\n"
+        exit 1
+    fi
+done
+count_users_after_delete=$(call_user_list | jq --raw-output '.users.[].uuid' | wc -l)
+if [ ${count_users_after_delete} != 2 ]; then
+    printf "...Failed (count_user: actual=${count_users_after_delete} <> expect=2)\n"
+    exit 1
+fi
+printf "...Passed\n"
 
-# Execute function
-$*
+printf "[test_get_user] "
+if [ "$(call_user_get $(call_user_list | jq --raw-output '.users.[].uuid' | tail -1))" == '{"error":"User not found"}' ]; then
+    printf "...Failed\n"
+    exit 1
+fi
+printf "...Passed\n"
+
+printf "[test_get_user_by_wrong_uuid_format] "
+if [ "$(call_user_get -1)" != '{"detail":[{"type":"uuid_parsing","loc":["query","uuid"],"msg":"Input should be a valid UUID, invalid group count: expected 5, found 2","input":"-1","ctx":{"error":"invalid group count: expected 5, found 2"}}]}' ]; then
+    printf "...Failed\n"
+    exit 1
+fi
+printf "...Passed\n"
+
+printf "[test_get_user_by_user_not_found] "
+if [ "$(call_user_get accfd78c-f0dc-4683-90bb-d63de643e852)" != '{"error":"User not found"}' ]; then
+    printf "...Failed\n"
+    exit 1
+fi
+printf "...Passed\n"

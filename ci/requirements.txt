@@ -1,0 +1,8 @@
+asynctest
+fastapi~=0.111.0
+flake8
+flake8-pyproject
+pylint
+pytest
+pytest-asyncio
+pytest-cov

@@ -7,13 +7,6 @@ NO_COLOR="\033[0m"
 
 PYTHON='python3.11'
 
-init () {
-    export POSTGRES_HOST=localhost
-    export POSTGRES_PORT=5432
-    export POSTGRES_USER=local
-    export POSTGRES_PASSWORD=local
-    export POSTGRES_DB=local
-}
 check_pep8 () {
     if [[ -z ${1} ]]; then
         printf "${BLUE}Please input LOCATION for checking.${NO_COLOR}\n";

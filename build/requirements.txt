@@ -1,0 +1,7 @@
+asyncpg~=0.29.0
+fastapi~=0.111.0
+loguru~=0.7.2
+psycopg~=3.2.1
+pydantic~=2.8.2
+SQLAlchemy~=2.0.31
+uvicorn~=0.20.0
