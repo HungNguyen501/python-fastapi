@@ -23,7 +23,6 @@ class UserService(BaseService):
         """Constructor"""
         self.repository = repository
 
-    @suppress_error(error_name="user_update api", response=UserChangeGeneralResonpse(message="System errors"))
     async def get(self, uuid: UUID) -> UserInDB:
         """Retrive user record by UUID
 
@@ -90,7 +89,7 @@ class UserService(BaseService):
             raise NotFoundException("User not found") from exc
         return UserChangeGeneralResonpse(message="deleted")
 
-    @suppress_error(error_name="user_update api", response=UserChangeGeneralResonpse(message="System errors"))
+    @suppress_error(error_name="user_update api", response=(0, []))
     async def list_users(self, start: int, page_size: int) -> Tuple[int, List[UserInDB]]:
         """List users in User table
 
