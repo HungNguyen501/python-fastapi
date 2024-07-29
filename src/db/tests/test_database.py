@@ -23,6 +23,7 @@ def test_db_connection(mock_create_engine, mock_base_model, *_):
     assert mock_create_engine.return_value.dispose.assert_called
 
 
+# pylint: disable=protected-access
 @pytest.mark.asyncio
 @patch(target="src.common.configs.OsVariable")
 @patch(
@@ -43,16 +44,16 @@ async def test_get_session(mock_create_async_engine, mock_async_sessionmaker, *_
     # Test with TypeError exception when _sessionmaker is None
     mock_session_manager._sessionmaker = None
     with pytest.raises(TypeError) as exc:
-        async with mock_session_manager.get_session(): pass
+        async with mock_session_manager.get_session(): pass  # noqa: E701 # pylint: disable=multiple-statements
     assert str(exc.value) == 'DatabaseSessionManager is not initialized'
     # Test in case _sessionmaker is not None
     mock_session_manager._sessionmaker = MagicMock()
     mock_session_manager._sessionmaker.return_value = AsyncMock()
-    with pytest.raises(Exception) as exc:
+    with pytest.raises(ValueError) as exc:
         async with mock_session_manager.get_session():
-            raise Exception("Intent to raise exception")
-    assert mock_session_manager._sessionmaker.return_value.rollback.called == True
-    assert mock_session_manager._sessionmaker.return_value.close.called == True
+            raise ValueError("Intent to raise exception")
+    assert mock_session_manager._sessionmaker.return_value.rollback.called is True
+    assert mock_session_manager._sessionmaker.return_value.close.called is True
 
 
 @pytest.mark.asyncio
@@ -61,4 +62,3 @@ async def test_get_session(mock_create_async_engine, mock_async_sessionmaker, *_
 async def test_get_db_session(*_):
     """Test get_db_session function"""
     assert len([i async for i in get_db_session()]) > 0
-

@@ -1,4 +1,4 @@
-"""User Responsitory model"""
+"""User Reponsitory model"""
 from uuid import UUID
 from typing import List
 
@@ -13,7 +13,7 @@ from src.schemas.user_schema import UserInDB, UserCreate, UserUpdate
 
 
 class UserRepository(BaseRepository[UserModel, UserInDB]):
-    """UserRespository interacts with User table"""
+    """UserRepository interacts with User table"""
     def __init__(self, db: AsyncSession = Depends(get_db_session)) -> None:
         """Constructor"""
         super().__init__(UserModel, db)

@@ -12,7 +12,7 @@ class NotFoundException(HTTPException):
 
 class InvalidInputException(HTTPException):
     """Exception when passing invalid input data for query"""
-    def __init__(self, deatil: str = "Invalid Input") -> None:
+    def __init__(self, deatil: str = "Invalid input") -> None:
         super().__init__(status_code=HTTPStatus.BAD_REQUEST, detail=deatil,)
 
 

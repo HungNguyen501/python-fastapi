@@ -74,7 +74,6 @@ class DatabaseSessionManager:  # pylint: disable=too-few-public-methods
             raise
         finally:
             await session.close()
-            
 
 
 async def get_db_session():
