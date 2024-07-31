@@ -38,6 +38,8 @@ assess_results () {
     printf "| Passed | actual=${1} == expected=${2}\n"
 }
 
+curl --version
+
 printf "[test_api_health_check]\n"
 actual=$(call_health_check)
 expected='{"message":"200 OK"}'
