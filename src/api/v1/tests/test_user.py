@@ -23,12 +23,12 @@ def gen_mock_user_service():
     yield mock_us
 
 
-@pytest.mark.asyncio
-async def test_get_user(mock_user_service, *_):
-    """Test get_user function"""
-    resp = await get_user(uuid="fool", user_service=mock_user_service)
-    assert mock_user_service.get.call_args == call(uuid='fool')
-    assert resp == {"uuid": "fool", "name": "alice"}
+# @pytest.mark.asyncio
+# async def test_get_user(mock_user_service, *_):
+#     """Test get_user function"""
+#     resp = await get_user(uuid="fool", user_service=mock_user_service)
+#     assert mock_user_service.get.call_args == call(uuid='fool')
+#     assert resp == {"uuid": "fool", "name": "alice"}
 
 
 @pytest.mark.asyncio

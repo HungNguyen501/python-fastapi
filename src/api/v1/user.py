@@ -1,6 +1,6 @@
 """Define User APIs"""
 from uuid import UUID
-a=1
+
 from fastapi import APIRouter, Depends
 from src.schemas.user_schema import (
     UserCreate,
