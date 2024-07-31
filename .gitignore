@@ -1,4 +1,5 @@
 .coverage
+virtual_env/*
 
 # Bazel
 MODULE.bazel.lock

@@ -2,7 +2,9 @@ asynctest
 fastapi~=0.111.0
 flake8
 flake8-pyproject
+loguru~=0.7.2
 pylint
 pytest
 pytest-asyncio
 pytest-cov
+SQLAlchemy~=2.0.31

@@ -1,7 +1,13 @@
 #!/usr/bin/env bash
 
+set -e
 PYTHON='python3.12'
 
+install () {
+    ${PYTHON} --version
+	${PYTHON} -m pip install --upgrade pip --break-system-packages
+	${PYTHON} -m pip install -r ./ci/requirements.txt --break-system-packages
+}
 check_pep8 () {
     if [[ -z ${1} ]]; then
         printf "Please input \"LOCATION\" for checking.\n";
@@ -9,29 +15,29 @@ check_pep8 () {
     fi
     printf "Checking PEP8 convention in ${1}...\n"
     ${PYTHON} -m flake8 ${1} --show-source --statistics && ${PYTHON} -m pylint ${1}
-    if [ $? != 0 ]; then
-        exit 1
-    fi
 }
 run_unit_tests () {
     if [[ -z ${1} ]]; then
         printf "Please input \"LOCATION\" for testing.\n";
         return 0
     fi
-    printf "Running unit tests in ${1}...\n"
     ${PYTHON} -m pytest ${1} \
         --disable-warnings \
         -vv \
         --cov ${1} \
         --cov-report term-missing \
         --cov-fail-under=100
-    if [ $? != 0 ]; then
-        exit 1
-    fi
 }
-check_incremental_changes () {
+run_integration_tests () {
+    bash ./ci/integration_tests/test_database.sh test_connection
+    bash ./ci/integration_tests/test_database.sh test_tables_deletion
+    bash ./ci/integration_tests/test_database.sh test_tables_creation
+    bash ./ci/integration_tests/test_user_api.sh
+    bash ./ci/integration_tests/test_database.sh test_tables_deletion
+}
+verify_changes () {
     if [[ -z ${1} ]]; then
-        printf "Input(CHANGES) is empty.\n";
+        printf "Input\"CHANGES\" is empty.\n";
         return 0
     fi
     files=()
@@ -41,8 +47,11 @@ check_incremental_changes () {
     done
     modules=$(bazel query --noshow_progress --output package "set(${files[*]})" 2>/dev/null)
     if [[ ! -z ${modules} ]]; then
-        make install
+        # Install libs
+        install
+        # Check convention
         check_pep8 ${modules}
+        # Run unit tests
         tests=$(bazel query --keep_going --noshow_progress --output package  "kind(test, rdeps(//..., set(${files[*]})))" 2>/dev/null)
         if [[ ! -z ${tests} ]]; then
             for test in ${tests[@]}; do
@@ -53,7 +62,6 @@ check_incremental_changes () {
         fi
     else
         printf "Changes take no effect\n";
-        printf '%.0s-' $(seq 1 30);
     fi
 }
 

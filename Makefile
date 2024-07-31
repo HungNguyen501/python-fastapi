@@ -13,19 +13,17 @@ pep8:
 test:
 	@bash ./$(CiScript) run_unit_tests $(LOCATION)
 
-check_incremental_changes:
-	@bash ./$(CiScript) check_incremental_changes $(CHANGES)
+verify_changes:
+	@bash ./$(CiScript) verify_changes $(CHANGES)
 	@bazel clean --async
 
-run_integration_test:
-	@bash ./$(IntegrationTest)/test_database.sh test_connection
-	@bash ./$(IntegrationTest)/test_database.sh test_tables_deletion
-	@bash ./$(IntegrationTest)/test_database.sh test_tables_creation
-	@bash ./$(IntegrationTest)/test_user_api.sh
-	@bash ./$(IntegrationTest)/test_database.sh test_tables_deletion
+run_integration_tests:
+	@bash ./$(CiScript) run_integration_tests
 
 start_docker_compose:
+	@echo "Docker compose up..."
 	@docker compose -f build/docker-compose.yaml up -d
 
 stop_docker_compose:
+	@echo "Docker compose down..."
 	@docker compose -f build/docker-compose.yaml down --volumes --remove-orphans

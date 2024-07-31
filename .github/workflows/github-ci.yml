@@ -37,9 +37,13 @@ jobs:
       run: |
         make check_incremental_changes CHANGES=${{ steps.changed-files.outputs.all }}
     
-    - name: Integration tests
+    - name: Start docker-compose
+      id: start-docker-compose
+      run: |
+        make start_dcoker_compose
+
+    - name: Run integration tests
       id: integration-tests
       run: |
-        make start_docker_compose
-        make run_integration_test
+        make run_integration_tests
         make stop_docker_compose

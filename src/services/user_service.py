@@ -5,16 +5,16 @@ from typing import Tuple, List
 from fastapi import Depends
 from loguru import logger
 from sqlalchemy.exc import DBAPIError
-from src.services.base_service import BaseService
+from src.common.exception_handler import suppress_error
+from src.common.exceptions import NotFoundException, InvalidInputException
 from src.repositories.user_repository import UserRepository
+from src.services.base_service import BaseService
 from src.schemas.user_schema import (
     UserCreate,
     UserUpdate,
     UserInDB,
     UserChangeGeneralResonpse,
 )
-from src.common.exception_handler import suppress_error
-from src.common.exceptions import NotFoundException, InvalidInputException
 
 
 class UserService(BaseService):
