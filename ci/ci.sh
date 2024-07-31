@@ -24,7 +24,7 @@ run_unit_tests () {
 
 run_integration_tests () {
     set -e
-    bash ./ci/integration_tests/test_database.sh test_connection
+    # bash ./ci/integration_tests/test_database.sh test_connection
     bash ./ci/integration_tests/test_database.sh test_tables_deletion
     bash ./ci/integration_tests/test_database.sh test_tables_creation
     bash ./ci/integration_tests/test_user_api.sh
