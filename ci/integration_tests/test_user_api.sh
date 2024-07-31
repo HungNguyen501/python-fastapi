@@ -3,7 +3,7 @@
 API_URI="http://127.0.0.1:8009/api/v1"
 
 call_health_check () {
-    curl --connect-timeout 5 --retry 10 --retry-delay 3 --retry-connrefused --retry-max-time 5 "${API_URI}/health" 2>/dev/null
+    curl --connect-timeout 5 --retry 10 --retry-delay 3 --retry-connrefused --retry-max-time 5 "${API_URI}/health"
 }
 
 call_user_get () {
