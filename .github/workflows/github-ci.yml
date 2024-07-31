@@ -41,5 +41,6 @@ jobs:
       id: integration-tests
       run: |
         make start_docker_compose
+        docker ps -a
         make run_integration_tests
         make stop_docker_compose
