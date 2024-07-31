@@ -33,7 +33,7 @@ run_integration_tests () {
     bash ./ci/integration_tests/test_database.sh test_tables_deletion
     bash ./ci/integration_tests/test_database.sh test_tables_creation
     bash ./ci/integration_tests/test_user_api.sh
-    # bash ./ci/integration_tests/test_database.sh test_tables_deletion
+    bash ./ci/integration_tests/test_database.sh test_tables_deletion
 }
 verify_changes () {
     if [[ -z ${1} ]]; then

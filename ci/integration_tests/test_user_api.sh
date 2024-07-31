@@ -49,7 +49,7 @@ for data in '{"name": "user1"}' '{"name": "user2"}' '{"name": "user3"}' '{"name"
         exit 1
     fi
 done
-count_users=$(call_user_list | jq --raw-output '.total')
+count_users=$(call_user_list | jq --raw-output ".total")
 if [ ${count_users} != 7 ]; then
     printf "...Failed (count_user: actual=${count_users} <> expect=7)\n"
     exit 1
@@ -57,7 +57,7 @@ fi
 printf "...Passed\n"
 
 printf "[test_update_user] "
-for uuid in $(call_user_list | jq --raw-output '.users.[].uuid' | tail -5); do
+for uuid in $(call_user_list | jq --raw-output ".users.[].uuid" | tail -5); do
     if [ $(call_user_update "${uuid}" '{"name": "fake1"}' 2>/dev/null) != '{"message":"updated"}' ]; then
         printf "...Failed\n"
         exit 1
@@ -70,13 +70,13 @@ fi
 printf "...Passed\n"
 
 printf "[test_delete_user] "
-for uuid in $(call_user_list | jq --raw-output '.users.[].uuid' | tail -5); do
+for uuid in $(call_user_list | jq --raw-output ".users.[].uuid" | tail -5); do
     if [ $(call_user_delete "${uuid}" 2>/dev/null) != '{"message":"deleted"}' ]; then
         printf "...Failed\n"
         exit 1
     fi
 done
-count_users_after_delete=$(call_user_list | jq --raw-output '.total')
+count_users_after_delete=$(call_user_list | jq --raw-output ".total")
 if [ ${count_users_after_delete} != 2 ]; then
     printf "...Failed (count_user: actual=${count_users_after_delete} <> expect=2)\n"
     exit 1
@@ -84,7 +84,7 @@ fi
 printf "...Passed\n"
 
 printf "[test_get_user] "
-if [ "$(call_user_get $(call_user_list | jq --raw-output '.users.[].uuid' | tail -1))" == '{"error":"User not found"}' ]; then
+if [ "$(call_user_get $(call_user_list | jq --raw-output ".users.[].uuid" | tail -1))" == '{"error":"User not found"}' ]; then
     printf "...Failed\n"
     exit 1
 fi
