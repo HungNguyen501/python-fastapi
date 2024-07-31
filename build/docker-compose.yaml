@@ -1,5 +1,3 @@
-version: '3.7'
-
 services:
   python_api_template:
     image: python_api_template
