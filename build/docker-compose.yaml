@@ -20,6 +20,9 @@ services:
         published: 8009
         protocol: tcp
         mode: host
+    depends_on:
+      postgres_for_python_api:
+        condition: service_healthy
   postgres_for_python_api:
     image: postgres
     container_name: postgres_for_python_api
@@ -28,6 +31,11 @@ services:
       POSTGRES_USER: local
       POSTGRES_PASSWORD: local
       POSTGRES_DB: local
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - target: 5432
         host_ip: 127.0.0.1

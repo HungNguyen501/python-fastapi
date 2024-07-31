@@ -32,10 +32,10 @@ jobs:
       with:
         format: 'csv'
 
-    # - name: Pip install libs
-    #   id: pip-install-libs
-    #   run: |
-    #     make install
+    - name: Install CI requirements
+      id: install-ci-requirements
+      run: |
+        make install
 
     - name: Check incremental changes
       id: check-incremental-changes
@@ -50,6 +50,5 @@ jobs:
     - name: Run integration tests
       id: integration-tests
       run: |
-        make install
         make run_integration_tests
         make stop_docker_compose
