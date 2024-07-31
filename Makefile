@@ -3,9 +3,7 @@ CiScript := ci/ci.sh
 IntegrationTest := ci/integration_tests
 
 install:
-	@python3.12 --version
-	@python3.12 -m pip install --upgrade pip --break-system-packages
-	@python3.12 -m pip install -r ./ci/requirements.txt --break-system-packages
+	@bash ./$(CiScript) install
 
 pep8:
 	@bash ./$(CiScript) check_pep8 $(LOCATION)
