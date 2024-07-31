@@ -26,6 +26,10 @@ call_user_delete () {
     curl --connect-timeout 5 --location --request DELETE "${API_URI}/user?uuid=${1}"
 }
 
+curl --connect-timeout 5 --location "http://0.0.0.0:8009/api/v1"
+curl --connect-timeout 5 --location "http://127.0.0.1:8009/api/v1"
+curl --connect-timeout 5 --location "http://python_api_template:8009/api/v1"
+
 printf "[test_health_check] "
 response=$(curl --connect-timeout 5 --location "${API_URI}/health" 2>/dev/null)
 if [ "${response}" == "{\"message\":\"200 OK\"}" ]; then
