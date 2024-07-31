@@ -7,7 +7,7 @@ call_user_get () {
 }
 
 call_user_list () {
-    curl --location "${API_URI}/user/list?start=0&page_size=200" 2>/dev/null
+    curl --location "${API_URI}/user/list?start=0&page_size=10" 2>/dev/null
 }
 
 call_user_create () {
@@ -49,7 +49,7 @@ for data in '{"name": "user1"}' '{"name": "user2"}' '{"name": "user3"}' '{"name"
         exit 1
     fi
 done
-count_users=$(call_user_list | jq --raw-output '.users.[].uuid' | wc -l)
+count_users=$(call_user_list | jq --raw-output '.total')
 if [ ${count_users} != 7 ]; then
     printf "...Failed (count_user: actual=${count_users} <> expect=7)\n"
     exit 1
@@ -76,7 +76,7 @@ for uuid in $(call_user_list | jq --raw-output '.users.[].uuid' | tail -5); do
         exit 1
     fi
 done
-count_users_after_delete=$(call_user_list | jq --raw-output '.users.[].uuid' | wc -l)
+count_users_after_delete=$(call_user_list | jq --raw-output '.total')
 if [ ${count_users_after_delete} != 2 ]; then
     printf "...Failed (count_user: actual=${count_users_after_delete} <> expect=2)\n"
     exit 1
