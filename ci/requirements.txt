@@ -3,6 +3,7 @@ fastapi~=0.111.0
 flake8
 flake8-pyproject
 loguru~=0.7.2
+psycopg2~=2.9.9
 pylint
 pytest
 pytest-asyncio
