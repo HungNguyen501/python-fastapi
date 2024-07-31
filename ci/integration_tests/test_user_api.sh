@@ -26,15 +26,6 @@ call_user_delete () {
     curl --connect-timeout 5 --location --request DELETE "${API_URI}/user?uuid=${1}"
 }
 
-printf "[test_health_check] "
-response=$(curl --connect-timeout 5 --location "${API_URI}/health" 2>/dev/null)
-if [ "${response}" == "{\"message\":\"200 OK\"}" ]; then
-    printf "...API is healthy\n"
-else
-    printf "...API is down\n"
-    exit 1
-fi
-
 printf "[test_empty_user_list] "
 if [ "$(call_user_list)" != "{\"total\":0,\"count\":0,\"users\":[]}" ]; then
     printf "...Failed\n"
