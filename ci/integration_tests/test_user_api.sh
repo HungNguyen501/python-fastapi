@@ -50,6 +50,7 @@ for data in '{"name": "user1"}' '{"name": "user2"}' '{"name": "user3"}' '{"name"
     # fi
     call_user_create "${data}"
 done
+call_user_list
 count_users=$(call_user_list | jq --raw-output '.users.[].uuid' | wc -l)
 if [ ${count_users} != 7 ]; then
     printf "...Failed (count_user: actual=${count_users} <> expect=7)\n"
