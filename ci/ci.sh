@@ -1,6 +1,5 @@
 #!/usr/bin/env bash
 
-set -e
 PYTHON='python3.12'
 
 install () {
@@ -29,6 +28,7 @@ run_unit_tests () {
         --cov-fail-under=100
 }
 run_integration_tests () {
+    set -e
     bash ./ci/integration_tests/test_database.sh test_connection
     bash ./ci/integration_tests/test_database.sh test_tables_deletion
     bash ./ci/integration_tests/test_database.sh test_tables_creation
@@ -49,6 +49,7 @@ verify_changes () {
     if [[ ! -z ${modules} ]]; then
         # Install libs
         install
+        set -e
         # Check convention
         check_pep8 ${modules}
         # Run unit tests
