@@ -3,7 +3,7 @@ from unittest.mock import AsyncMock, call
 
 import pytest
 from src.api.v1.user import (
-    get_user,
+    # get_user,
     create_user,
     update_user,
     delete_user,
