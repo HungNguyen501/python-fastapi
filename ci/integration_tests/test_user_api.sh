@@ -3,7 +3,7 @@
 API_URI="http://127.0.0.1:8009/api/v1"
 
 call_health_check () {
-    curl --connect-timeout 5 --retry 10 --retry-delay 3 --retry-all-errors "${API_URI}/health"
+    curl --connect-timeout 5 --retry 10 --retry-delay 3 --retry-all-errors "${API_URI}/health" 2>/dev/null
 }
 
 call_user_get () {
@@ -37,8 +37,6 @@ assess_results () {
     fi
     printf "| Passed | actual=${1} == expected=${2}\n"
 }
-
-curl --version
 
 printf "[test_api_health_check]\n"
 actual=$(call_health_check)
