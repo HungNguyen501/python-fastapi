@@ -1,6 +1,8 @@
 """Unit tests for application module"""
 from unittest.mock import patch, call
+import sys
 
+import pytest
 from fastapi import HTTPException
 from src.api.application import get_app
 
@@ -23,3 +25,7 @@ def test_get_app(mock_fast_api, mock_unicorn_exception_handler, mock_http_except
             router=mock_get_api_router(),
             prefix="/api"
         )
+
+
+if __name__ == "__main__":
+    sys.exit(pytest.main([__file__] + sys.argv[1:]))

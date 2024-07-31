@@ -2,14 +2,20 @@ ProjectName := Python-Api-Template
 CiScript := ci/ci.sh
 IntegrationTest := ci/integration_tests
 
-run_api:
-	@uvicorn src.api.application:get_app --host 0.0.0.0 --port 8009 --workers 1 --reload
+install:
+	@python3.12 --version
+	@python3.12 -m pip install --upgrade pip --break-system-packages
+	@python3.12 -m pip install -r ./ci/requirements.txt --break-system-packages
 
 pep8:
-	@bash ./$(CiScript) check_pep8 $(location)
+	@bash ./$(CiScript) check_pep8 $(LOCATION)
 
 test:
-	@bash ./$(CiScript) run_unit_tests $(location)
+	@bash ./$(CiScript) run_unit_tests $(LOCATION)
+
+check_incremental_changes:
+	@bash ./$(CiScript) check_incremental_changes $(CHANGES)
+	@bazel clean --async
 
 run_integration_test:
 	@bash ./$(IntegrationTest)/test_database.sh test_connection
