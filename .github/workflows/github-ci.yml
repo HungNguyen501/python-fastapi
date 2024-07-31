@@ -40,7 +40,7 @@ jobs:
     - name: Start docker-compose
       id: start-docker-compose
       run: |
-        make start_dcoker_compose
+        make start_docker_compose
 
     - name: Run integration tests
       id: integration-tests
