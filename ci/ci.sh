@@ -39,7 +39,6 @@ verify_changes () {
     done
     modules=$(bazel query --noshow_progress --output package "set(${files[*]})" 2>/dev/null)
     if [[ ! -z ${modules} ]]; then
-        else
         printf "Changes take no effect\n";
         exit 0
     fi
