@@ -34,6 +34,8 @@ assess_results () {
     printf "| Passed | actual=${1} == expected=${2}\n"
 }
 
+curl --location "${API_URI}/user/list?start=0&page_size=10"
+
 printf "[test_empty_user_list]\n"
 actual=$(call_user_list)
 expected="{\"total\":0,\"count\":0,\"users\":[]}"
