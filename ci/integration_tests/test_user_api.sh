@@ -2,6 +2,10 @@
 
 API_URI="http://127.0.0.1:8009/api/v1"
 
+call_health_check () {
+    curl --connect-timeout 5 --retry 5 --retry-delay 0 --retry-max-time 5 "${API_URI}/health" 2>/dev/null
+}
+
 call_user_get () {
     curl --connect-timeout 5 --location "${API_URI}/user?uuid=${1}" 2>/dev/null
 }
@@ -34,7 +38,10 @@ assess_results () {
     printf "| Passed | actual=${1} == expected=${2}\n"
 }
 
-curl --location "${API_URI}/user/list?start=0&page_size=10"
+printf "[test_api_health_check]\n"
+actual=$(call_health_check)
+expected='{"message":"200 OK"}'
+assess_results "${actual}" "${expected}"
 
 printf "[test_empty_user_list]\n"
 actual=$(call_user_list)
