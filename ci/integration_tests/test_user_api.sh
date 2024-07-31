@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-API_URI="http://0.0.0.0:8009/api/v1"
+API_URI="http://127.0.0.1:8009/api/v1"
 
 call_user_get () {
     curl --connect-timeout 5 --location "${API_URI}/user?uuid=${1}" 2>/dev/null

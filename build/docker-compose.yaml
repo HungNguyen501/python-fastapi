@@ -13,7 +13,7 @@ services:
     build:
       context: ../
       dockerfile: build/Dockerfile
-    command: uvicorn src.api.application:get_app --host 0.0.0.0 --port 8009 --workers 1 --reload
+    command: uvicorn src.api.application:get_app --host 127.0.0.1 --port 8009 --workers 1 --reload
     networks:
       - python_api_template
     ports:
