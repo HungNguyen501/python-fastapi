@@ -11,11 +11,11 @@ test_connection () {
 }
 
 test_tables_creation () {
-    python3.11 -c "from src.db.database import DatabaseConnection; db = DatabaseConnection(); db.connect(); db.create_tables();";
+    python3 -c "from src.db.database import DatabaseConnection; db = DatabaseConnection(); db.connect(); db.create_tables();";
 }
 
 test_tables_deletion () {
-    python3.11 -c "from src.db.database import DatabaseConnection; db = DatabaseConnection(); db.connect(); db.drop_tables();";
+    python3 -c "from src.db.database import DatabaseConnection; db = DatabaseConnection(); db.connect(); db.drop_tables();";
 }
 
 # Execute function
