@@ -37,42 +37,42 @@ assess_results () {
 printf "[test_empty_user_list]\n"
 actual=$(call_user_list)
 expected="{\"total\":0,\"count\":0,\"users\":[]}"
-assess_results ${actual} ${expected}
+assess_results "${actual}" "${expected}"
 
 printf "[test_create_user]\n"
 for data in '{"name": "user1"}' '{"name": "user2"}' '{"name": "user3"}' '{"name": "user4"}' '{"name": "user5"}' '{"name": "user6"}' '{"name": "user7"}'; do
     actual=$(call_user_create "${data}" 2>/dev/null)
     expected='{"message":"created"}'
-    assess_results ${actual} ${expected}
+    assess_results "${actual}" "${expected}"
 done
 actual=$(call_user_list | jq --raw-output ".total")
 expected=7
-assess_results ${actual} ${expected}
+assess_results "${actual}" "${expected}"
 
 printf "[test_update_user]\n"
 for uuid in $(call_user_list | jq --raw-output ".users[].uuid" | tail -5); do
     actual=$(call_user_update "${uuid}" '{"name": "fake1"}' 2>/dev/null)
     expected='{"message":"updated"}'
-    assess_results ${actual} ${expected}
+    assess_results "${actual}" "${expected}"
 done
 actual=$(call_user_list | jq --raw-output ".total")
 expected=7
-assess_results ${actual} ${expected}
+assess_results "${actual}" "${expected}"
 
 printf "[test_delete_user]\n"
 for uuid in $(call_user_list | jq --raw-output ".users[].uuid" | tail -5); do
     actual=$(call_user_delete "${uuid}" 2>/dev/null)
     expected='{"message":"deleted"}'
-    assess_results ${actual} ${expected}
+    assess_results "${actual}" "${expected}"
 done
 actual=$(call_user_list | jq --raw-output ".total")
 expected=2
-assess_results ${actual} ${expected}
+assess_results "${actual}" "${expected}"
 
 printf "[test_get_user]\n"
 actual=$(call_user_get $(call_user_list | jq --raw-output ".users[].uuid" | tail -1) | jq --raw-output ".name")
 expected='user2'
-assess_results ${actual} ${expected}
+assess_results "${actual}" "${expected}"
 
 printf "[test_get_user_by_wrong_uuid_format]\n"
 actual=$(call_user_get -1)
