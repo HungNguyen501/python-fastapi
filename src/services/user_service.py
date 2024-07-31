@@ -1,6 +1,6 @@
 """Service module for User entity"""
-from uuid import UUID
 from typing import Tuple, List
+from uuid import UUID
 
 from fastapi import Depends
 from loguru import logger
