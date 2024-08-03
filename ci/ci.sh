@@ -4,8 +4,10 @@ PYTHON='python3'
 
 install () {
     ${PYTHON} --version
-	${PYTHON} -m pip install --upgrade pip --break-system-packages
-	${PYTHON} -m pip install -r ./ci/requirements.txt --break-system-packages
+	${PYTHON} -m pip install --upgrade pip --break-system-packages 2>/dev/null
+    echo "Installing..."
+	${PYTHON} -m pip install -r ./ci/requirements.txt --break-system-packages 2>/dev/null
+    echo "Done"
 }
 
 check_pep8 () {
