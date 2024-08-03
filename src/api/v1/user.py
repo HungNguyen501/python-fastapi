@@ -68,7 +68,7 @@ async def delete_user(uuid: UUID, user_service: UserService = Depends()):
     return await user_service.delete(uuid=uuid)
 
 
-@router.get(path="/list", response_model=UserListResponse)
+@router.get(path="/list",)
 async def list_users(start: int = 0, page_size: int = 5, user_service: UserService = Depends()):
     """Show info of multiple users from database
 
