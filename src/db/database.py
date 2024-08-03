@@ -52,7 +52,7 @@ class DatabaseConnection:
 @cache
 class DatabaseSessionManager:  # pylint: disable=too-few-public-methods
     """
-        Session Manager controls database session connections
+        Session Manager controls database sessions
         With cache decorator, it guarantees only one DatabaseSessionManager instance is created and cached for reusing
     """
     def __init__(self,):

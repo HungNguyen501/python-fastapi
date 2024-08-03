@@ -32,7 +32,7 @@ def test_db_connection(mock_create_engine, mock_base_model, *_):
 @patch(target="src.db.database.async_sessionmaker", side_effect=AsyncMock())
 @patch(target="src.db.database.create_async_engine", side_effect=AsyncMock())
 async def test_init_database_sessionmanager(mock_create_async_engine, mock_async_sessionmaker, *_):
-    """Test DatabaseSessionManager Class"""
+    """Test DatabaseSessionManager constructor"""
     mock_session_manager = DatabaseSessionManager()
     assert mock_create_async_engine.call_args == call(
         url='postgresql+asyncpg://jane:fake@local:-1/dum_db', pool_size=2
