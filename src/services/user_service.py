@@ -2,10 +2,14 @@
 from typing import Tuple, List
 from uuid import UUID
 
+from asyncpg.exceptions import (
+    InvalidRowCountInLimitClauseError,
+    InvalidRowCountInResultOffsetClauseError,
+)
 from fastapi import Depends
 from loguru import logger
 from sqlalchemy.exc import DBAPIError
-from src.common.exception_handler import suppress_error
+from src.common.exception_handler import pegasus
 from src.common.exceptions import NotFoundException, InvalidInputException
 from src.repositories.user_repository import UserRepository
 from src.services.base_service import BaseService
@@ -14,6 +18,7 @@ from src.schemas.user_schema import (
     UserUpdate,
     UserInDB,
     UserChangeGeneralResonpse,
+    UserListResponse,
 )
 
 
@@ -45,6 +50,7 @@ class UserService(BaseService):
             raise NotFoundException(deatil="User not found")
         return result
 
+    @pegasus(error_name="user_create api",)
     async def create(self, data: UserCreate) -> UserChangeGeneralResonpse:
         """Create user
 
@@ -56,7 +62,7 @@ class UserService(BaseService):
         await self.repository.create(data)
         return UserChangeGeneralResonpse(message="created")
 
-    @suppress_error(error_name="user_update api", response=UserChangeGeneralResonpse(message="System errors"))
+    @pegasus(error_name="user_update api",)
     async def update(self, uuid: UUID, data: UserUpdate) -> UserChangeGeneralResonpse:
         """Update user data based its UUID
 
@@ -73,7 +79,7 @@ class UserService(BaseService):
             raise NotFoundException("User not found") from exc
         return UserChangeGeneralResonpse(message="updated")
 
-    @suppress_error(error_name="user_update api", response=UserChangeGeneralResonpse(message="System errors"))
+    # @pegasus(error_name="user_delete api",)
     async def delete(self, uuid: UUID) -> UserChangeGeneralResonpse:
         """Remove user data based its UUID
 
@@ -89,7 +95,7 @@ class UserService(BaseService):
             raise NotFoundException("User not found") from exc
         return UserChangeGeneralResonpse(message="deleted")
 
-    @suppress_error(error_name="user_update api", response=(0, []))
+    # @pegasus(error_name="list_users api",)
     async def list_users(self, start: int, page_size: int) -> Tuple[int, List[UserInDB]]:
         """List users in User table
 
@@ -101,6 +107,13 @@ class UserService(BaseService):
             number of records
             array of user records
         """
-        user_count = await self.repository.count_user_number()
-        user_list = await self.repository.list_users(start=start, page_size=page_size)
-        return user_count, user_list
+        try:
+            user_count = await self.repository.count_user_number()
+            user_list = await self.repository.list_users(start=start, page_size=page_size)
+        except (InvalidRowCountInLimitClauseError, InvalidRowCountInResultOffsetClauseError) as exc:
+            raise InvalidInputException(deatil=str(exc)) from exc
+        return UserListResponse(
+            total=user_count,
+            count=len(user_list),
+            users=user_list,
+        )

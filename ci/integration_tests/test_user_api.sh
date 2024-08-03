@@ -32,23 +32,23 @@ call_user_delete () {
 
 assess_results () {
     if [[ "${1}" != "${2}" ]]; then
-        printf "| Failed | actual=${1} <> expected=${2}\n"
+        printf "__Failed__: actual=${1} <> expected=${2}\n"
         exit 1
     fi
-    printf "| Passed | actual=${1} == expected=${2}\n"
+    printf "__Passed__: actual=${1} == expected=${2}\n"
 }
 
-printf "[test_api_health_check]\n"
+printf "Test api_health_check\n"
 actual=$(call_health_check)
 expected='{"message":"200 OK"}'
 assess_results "${actual}" "${expected}"
 
-printf "[test_empty_user_list]\n"
+printf "Test empty user_list\n"
 actual=$(call_user_list)
 expected="{\"total\":0,\"count\":0,\"users\":[]}"
 assess_results "${actual}" "${expected}"
 
-printf "[test_create_user]\n"
+printf "Test create_user\n"
 for data in '{"name": "user1"}' '{"name": "user2"}' '{"name": "user3"}' '{"name": "user4"}' '{"name": "user5"}' '{"name": "user6"}' '{"name": "user7"}'; do
     actual=$(call_user_create "${data}" 2>/dev/null)
     expected='{"message":"created"}'
@@ -58,7 +58,7 @@ actual=$(call_user_list | jq --raw-output ".total")
 expected=7
 assess_results "${actual}" "${expected}"
 
-printf "[test_update_user]\n"
+printf "Test update_user\n"
 for uuid in $(call_user_list | jq --raw-output ".users[].uuid" | tail -5); do
     actual=$(call_user_update "${uuid}" '{"name": "fake1"}' 2>/dev/null)
     expected='{"message":"updated"}'
@@ -68,7 +68,13 @@ actual=$(call_user_list | jq --raw-output ".total")
 expected=7
 assess_results "${actual}" "${expected}"
 
-printf "[test_delete_user]\n"
+printf "Test update_user by wrong field name and be handled by suppress_error mechanism\n"
+uuid=$(call_user_list | jq --raw-output ".users[].uuid" | tail -1)
+actual=$(call_user_update "${uuid}" '{"wrong_field_name": "fake1"}' 2>/dev/null)
+expected='{"message":"System errors"}'
+assess_results "${actual}" "${expected}"
+
+printf "Test delete_user\n"
 for uuid in $(call_user_list | jq --raw-output ".users[].uuid" | tail -5); do
     actual=$(call_user_delete "${uuid}" 2>/dev/null)
     expected='{"message":"deleted"}'
@@ -78,17 +84,17 @@ actual=$(call_user_list | jq --raw-output ".total")
 expected=2
 assess_results "${actual}" "${expected}"
 
-printf "[test_get_user]\n"
+printf "Test get_user\n"
 actual=$(call_user_get $(call_user_list | jq --raw-output ".users[].uuid" | tail -1) | jq --raw-output ".name")
 expected='user2'
 assess_results "${actual}" "${expected}"
 
-printf "[test_get_user_by_wrong_uuid_format]\n"
+printf "Test get_user_by_wrong_uuid_format\n"
 actual=$(call_user_get -1)
 expected='{"detail":[{"type":"uuid_parsing","loc":["query","uuid"],"msg":"Input should be a valid UUID, invalid group count: expected 5, found 2","input":"-1","ctx":{"error":"invalid group count: expected 5, found 2"}}]}'
 assess_results "${actual}" "${expected}"
 
-printf "[test_get_user_by_user_not_found]\n"
+printf "Test get_user_by_user_not_found\n"
 actual="$(call_user_get accfd78c-f0dc-4683-90bb-d63de643e852)"
 expected='{"error":"User not found"}'
 assess_results "${actual}" "${expected}"

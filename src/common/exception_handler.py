@@ -1,6 +1,5 @@
 """Exception Handler module"""
 import functools
-from typing import Any
 from http import HTTPStatus
 import traceback
 
@@ -26,11 +25,16 @@ async def unicorn_exception_handler(request: Request, exc: UnicornException):  #
     )
 
 
-def suppress_error(error_name: str, response: Any, exceptions=(Exception,)):
+def pegasus(error_name: str, exceptions=(Exception,), suppress_error: bool = True):
     """Customize exception handling by:
     - Control output log in console
     - Send alert to Email/ Slack Channel
     - Return intentional response
+
+    Args:
+        error_name(str): title for exception/ error
+        exceptions(tuple): list of exceptions for suppression
+        suppress_error(boolean): intend to suppress exception
     """
     def wrapper(func):
         @functools.wraps(func)
@@ -40,7 +44,8 @@ def suppress_error(error_name: str, response: Any, exceptions=(Exception,)):
             except exceptions:
                 logger.error(f"Suppressed {error_name} error: {traceback.format_exc()}")
                 # Could send error traceback to Slack channel here
-                return response
-
+                if suppress_error:
+                    return
+                raise
         return inner
     return wrapper

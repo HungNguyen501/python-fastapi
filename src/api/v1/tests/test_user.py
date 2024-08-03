@@ -19,63 +19,56 @@ def gen_mock_user_service():
     mock_us.create.return_value = {"status": "created"}
     mock_us.update.return_value = {"status": "updated"}
     mock_us.delete.return_value = {"status": "deleted"}
-    mock_us.list_users.return_value = 1, [{"uuid": "-1", "name": "kevin"}]
+    mock_us.list_users.return_value = {"total": 1, "count": 1, "users": [{"name": "bob"}]}
     yield mock_us
 
 
 @pytest.mark.asyncio
 async def test_get_user(mock_user_service, *_):
     """Test get_user function"""
-    resp = await get_user(uuid="fool", user_service=mock_user_service)
+    assert await get_user(uuid="fool", user_service=mock_user_service) == {"uuid": "fool", "name": "alice"}
     assert mock_user_service.get.call_args == call(uuid='fool')
-    assert resp == {"uuid": "fool", "name": "alice"}
 
 
 @pytest.mark.asyncio
 async def test_create_user(mock_user_service, *_):
     """Test get_user function"""
-    resp = await create_user(data={"name": "bob"}, user_service=mock_user_service)
+    assert await create_user(data={"name": "bob"}, user_service=mock_user_service) == {"status": "created"}
     assert mock_user_service.create.call_args == call(data={'name': 'bob'})
-    assert resp == {"status": "created"}
 
 
 @pytest.mark.asyncio
 async def test_update_user(mock_user_service, *_):
     """Test get_user function"""
-    resp = await update_user(
+    assert await update_user(
         uuid="fool",
         data={"name": "bob"},
         user_service=mock_user_service,
-    )
+    ) == {"status": "updated"}
     assert mock_user_service.update.call_args == call(
         uuid="fool",
         data={"name": "bob"},
     )
-    assert resp == {"status": "updated"}
 
 
 @pytest.mark.asyncio
 async def test_delete_user(mock_user_service, *_):
     """Test get_user function"""
-    resp = await delete_user(
+    assert await delete_user(
         uuid="fool",
         user_service=mock_user_service,
-    )
+    ) == {"status": "deleted"}
     assert mock_user_service.delete.call_args == call(uuid="fool",)
-    assert resp == {"status": "deleted"}
 
 
 @pytest.mark.asyncio
 async def test_list_user(mock_user_service, *_):
     """Test get_user function"""
-    resp = await list_users(
+    assert await list_users(
         start=-1,
         page_size=-10,
         user_service=mock_user_service,
-    )
-    assert mock_user_service.delete.call_args == call(uuid="fool",)
-    assert resp == {
-        "total": 1,
-        "count": 1,
-        "users": [{"uuid": "-1", "name": "kevin"}],
-    }
+    ) == {"total": 1, "count": 1, "users": [{"name": "bob"}]}
+    assert mock_user_service.list_users.call_args == call(
+        start=-1,
+        page_size=-10,)

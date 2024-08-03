@@ -79,9 +79,4 @@ async def list_users(start: int = 0, page_size: int = 5, user_service: UserServi
 
     Returns list of users in database based on specific conditions
     """
-    total, users = await user_service.list_users(start=start, page_size=page_size)
-    return {
-        "total": total,
-        "count": len(users),
-        "users": users,
-    }
+    return await user_service.list_users(start=start, page_size=page_size)

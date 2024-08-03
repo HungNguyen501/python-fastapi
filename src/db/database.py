@@ -1,7 +1,7 @@
 """Database Connection and Session Manager modules"""
 from functools import cache
 from typing import AsyncIterator
-import contextlib
+from contextlib import asynccontextmanager
 
 from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
@@ -32,11 +32,11 @@ class DatabaseConnection:
         self._conn.dispose()
 
     def create_tables(self,):
-        """Create all tables in metadata"""
+        """Create all tables from metadata"""
         BaseModel.metadata.create_all(bind=self._conn)
 
     def drop_tables(self,):
-        """Drop all tables in metadata"""
+        """Drop all tables from metadata"""
         BaseModel.metadata.drop_all(bind=self._conn)
 
     def __enter__(self,):
@@ -51,9 +51,12 @@ class DatabaseConnection:
 
 @cache
 class DatabaseSessionManager:  # pylint: disable=too-few-public-methods
-    """Session Manager controls database session connections"""
+    """
+        Session Manager controls database session connections
+        With cache decorator, it guarantees only one DatabaseSessionManager instance is created and cached for reusing
+    """
     def __init__(self,):
-        """Contructor"""
+        """Constructor"""
         self._url = f"postgresql+asyncpg://" \
                     f"{Config.get(OsVariable.POSTGRES_USER)}:{Config.get(OsVariable.POSTGRES_PASSWORD)}" \
                     f"@{Config.get(OsVariable.POSTGRES_HOST)}:{Config.get(OsVariable.POSTGRES_PORT)}" \
@@ -61,9 +64,20 @@ class DatabaseSessionManager:  # pylint: disable=too-few-public-methods
         self._engine = create_async_engine(url=self._url, pool_size=2)
         self._sessionmaker = async_sessionmaker(autocommit=False, bind=self._engine)
 
-    @contextlib.asynccontextmanager
+    async def close(self):
+        """Close conenction"""
+        if self._engine is None:
+            raise TypeError("DatabaseSessionManager is not initialized")
+        await self._engine.dispose()
+        self._engine = None
+        self._sessionmaker = None
+
+    @asynccontextmanager
     async def get_session(self) -> AsyncIterator[AsyncSession]:
-        """Provision session from session maker"""
+        """Provision session from session maker
+
+        Returns AsyncGeneratorContextManager of AsyncSession
+        """
         if self._sessionmaker is None:
             raise TypeError("DatabaseSessionManager is not initialized")
         session = self._sessionmaker()

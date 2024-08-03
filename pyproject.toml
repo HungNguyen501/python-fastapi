@@ -5,6 +5,9 @@ exclude = [
     "__pycache__",
     "venv",
 ]
+per-file-ignores =[
+    "src/services/tests/test_user_service.py:E402",
+]
 
 
 # https://github.com/atlassian-api/atlassian-python-api/blob/master/pyproject.toml
@@ -58,6 +61,8 @@ exclude_also = [
 
     # Don't complain about abstract methods, they aren't run:
     "@(abc\\.)?abstractmethod",
+    # Don't complain about this code line for mocking pegasus decorator
+    "patch\\(target='src.services.user_service.pegasus', new=lambda \\*args, \\*\\*kwargs: lambda func: func,\\).start\\(\\)",
     ]
 
 ignore_errors = true

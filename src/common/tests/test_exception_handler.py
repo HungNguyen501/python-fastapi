@@ -6,7 +6,7 @@ import pytest
 from src.common.exception_handler import (
     http_exception_handler,
     unicorn_exception_handler,
-    suppress_error,
+    pegasus,
 )
 
 
@@ -32,7 +32,14 @@ async def test_unicorn_exception_handler(mock_resp):
 @pytest.mark.asyncio
 async def test_suppress_error():
     """Test suppress_error function"""
-    @suppress_error(error_name="sick", response="day off")
-    def mock_func():
+    @pegasus(error_name="sick",)
+    async def mock_func_with_suppress():
+        raise ValueError("nevermind")
+
+    @pegasus(error_name="sick", suppress_error=False,)
+    async def mock_func():
         raise ValueError("fever")
-    assert await mock_func() == "day off"
+    assert await mock_func_with_suppress() is None
+    with pytest.raises(ValueError) as exc:
+        await mock_func()
+    assert str(exc.value) == "fever"

@@ -2,6 +2,8 @@
 from unittest.mock import AsyncMock, MagicMock
 
 import pytest
+from sqlalchemy.exc import DBAPIError
+from asyncpg.exceptions import InvalidRowCountInLimitClauseError
 from src.repositories.user_repository import UserRepository
 
 
@@ -34,8 +36,17 @@ async def test_update():
 async def test_list_users():
     """Test UserRepository.list_users function"""
     mock_db = AsyncMock()
-    mock_db.scalars.return_value = [{"name": "alice"}, {"name": "bob"}]
+    mock_exception = MagicMock()
+    mock_exception.__cause__ = InvalidRowCountInLimitClauseError("Limit offset must not be negative")
+    mock_db.scalars.side_effect = [
+        DBAPIError(statement="select 1 from none", params=None, orig=mock_exception),
+        [{"name": "alice"}, {"name": "bob"}]
+    ]
     mock_user_repository = UserRepository(db=mock_db)
+    # In case: db.scalars throws DBAPIError
+    with pytest.raises(InvalidRowCountInLimitClauseError):
+        await mock_user_repository.list_users(start=-1, page_size=0)
+    # In case: db.scalars returns data
     assert await mock_user_repository.list_users(start=-1, page_size=0) == [{'name': 'alice'}, {'name': 'bob'}]
 
 
