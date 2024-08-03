@@ -4,9 +4,9 @@ PYTHON='python3'
 
 install () {
     ${PYTHON} --version
-	${PYTHON} -m pip install --upgrade pip --break-system-packages 2>/dev/null
+	${PYTHON} -m pip install --upgrade pip --quiet --break-system-packages
     echo "Installing..."
-	${PYTHON} -m pip install -r ./ci/requirements.txt --break-system-packages 2>/dev/null
+	${PYTHON} -m pip install --quiet -r ./ci/requirements.txt --break-system-packages
     echo "Done"
 }
 
