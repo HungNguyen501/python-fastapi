@@ -59,7 +59,7 @@ export POSTGRES_PORT=5432
 export POSTGRES_USER=local
 export POSTGRES_PASSWORD=local
 export POSTGRES_DB=local
-psql postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB} -c "select * as public.user;"
+psql postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB} -c "select * from public.user;"
 jq --version
 req=$(call_user_list)
 echo $req
