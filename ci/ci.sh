@@ -6,6 +6,7 @@ install () {
     ${PYTHON} --version
 	${PYTHON} -m pip install --upgrade pip --quiet --break-system-packages
     echo "Installing..."
+    cat ./ci/requirements.txt 
 	${PYTHON} -m pip install --quiet -r ./ci/requirements.txt --break-system-packages
     echo "Done"
 }

@@ -54,7 +54,10 @@ for data in '{"name": "user1"}' '{"name": "user2"}' '{"name": "user3"}' '{"name"
     expected='{"message":"created"}'
     assess_results "${actual}" "${expected}"
 done
-actual=$(call_user_list | jq --raw-output ".total")
+jq --version
+req=$(call_user_list)
+echo $req
+actual=$(echo $req | jq --raw-output ".total")
 expected=7
 assess_results "${actual}" "${expected}"
 
@@ -64,10 +67,7 @@ for uuid in $(call_user_list | jq --raw-output ".users[].uuid" | tail -5); do
     expected='{"message":"updated"}'
     assess_results "${actual}" "${expected}"
 done
-jq --version
-req=$(call_user_list)
-echo $req
-actual=$( echo $req | jq --raw-output ".total")
+actual=$(call_user_list | jq --raw-output ".total")
 expected=7
 assess_results "${actual}" "${expected}"
 
