@@ -7,7 +7,6 @@ from src.schemas.user_schema import (
     UserUpdate,
     UserInDB,
     UserChangeGeneralResonpse,
-    UserListResponse,
 )
 from src.services.user_service import UserService
 
