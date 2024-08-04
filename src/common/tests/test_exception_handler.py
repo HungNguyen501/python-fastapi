@@ -3,6 +3,7 @@ from http import HTTPStatus
 from unittest.mock import call, patch, MagicMock
 
 import pytest
+from fastapi import HTTPException
 from src.common.exception_handler import (
     http_exception_handler,
     unicorn_exception_handler,
@@ -30,16 +31,20 @@ async def test_unicorn_exception_handler(mock_resp):
 
 
 @pytest.mark.asyncio
-async def test_suppress_error():
-    """Test suppress_error function"""
-    @pegasus(error_name="sick",)
+async def test_pegasus():
+    """Test pegasus function"""
+    @pegasus(target="sick",)
     async def mock_func_with_suppress():
         raise ValueError("nevermind")
 
-    @pegasus(error_name="sick", suppress_error=False,)
+    @pegasus(target="sick", allow_errors=(ValueError,),)
     async def mock_func():
         raise ValueError("fever")
-    assert await mock_func_with_suppress() is None
+    with pytest.raises(HTTPException) as exc:
+        assert await mock_func_with_suppress() == HTTPException(
+            status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+            detail="nevermind",
+        )
     with pytest.raises(ValueError) as exc:
         await mock_func()
     assert str(exc.value) == "fever"

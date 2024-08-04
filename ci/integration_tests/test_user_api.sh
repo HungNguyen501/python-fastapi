@@ -54,16 +54,7 @@ for data in '{"name": "user1"}' '{"name": "user2"}' '{"name": "user3"}' '{"name"
     expected='{"message":"created"}'
     assess_results "${actual}" "${expected}"
 done
-export POSTGRES_HOST=127.0.0.1
-export POSTGRES_PORT=5432
-export POSTGRES_USER=local
-export POSTGRES_PASSWORD=local
-export POSTGRES_DB=local
-psql postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${POSTGRES_HOST}:${POSTGRES_PORT}/${POSTGRES_DB} -c "select * from public.users;"
-jq --version
-req=$(call_user_list)
-echo $req
-actual=$(echo $req | jq --raw-output ".total")
+actual=$(call_user_list | jq --raw-output ".total")
 expected=7
 assess_results "${actual}" "${expected}"
 
@@ -77,10 +68,15 @@ actual=$(call_user_list | jq --raw-output ".total")
 expected=7
 assess_results "${actual}" "${expected}"
 
-printf "Test update_user by wrong field name and be handled by suppress_error mechanism\n"
+printf "Test update_user by not found uuid\n"
+actual=$(call_user_update "a00a0aaa-0aa0-00a0-00aa-0a0aa0aa00a0" '{"name": "fake1"}' 2>/dev/null)
+expected='{"error":"User not found"}'
+assess_results "${actual}" "${expected}"
+
+printf "Test update_user by wrong field name\n"
 uuid=$(call_user_list | jq --raw-output ".users[].uuid" | tail -1)
 actual=$(call_user_update "${uuid}" '{"wrong_field_name": "fake1"}' 2>/dev/null)
-expected='{"message":"System errors"}'
+expected='{"error":"null value in column \"name\" of relation \"users\" violates not-null constraint"}'
 assess_results "${actual}" "${expected}"
 
 printf "Test delete_user\n"

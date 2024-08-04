@@ -40,7 +40,7 @@ class UserRepository(BaseRepository[UserModel, UserInDB]):
             user_list = await self.db.scalars(select(UserModel).limit(page_size).offset(start))
         except DBAPIError as exc:
             raise exc.orig.__cause__
-        return list(user_list)
+        return user_list
 
     async def count_user_number(self,) -> int:
         """Returns user count"""

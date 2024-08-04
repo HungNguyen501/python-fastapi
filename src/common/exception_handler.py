@@ -25,27 +25,29 @@ async def unicorn_exception_handler(request: Request, exc: UnicornException):  #
     )
 
 
-def pegasus(error_name: str, exceptions=(Exception,), suppress_error: bool = True):
+def pegasus(target: str, allow_errors=()):
     """Customize exception handling by:
-    - Control output log in console
+    - Control log in console
     - Send alert to Email/ Slack Channel
-    - Return intentional response
+    - Suppress errors for handy customization
 
     Args:
-        error_name(str): title for exception/ error
-        exceptions(tuple): list of exceptions for suppression
-        suppress_error(boolean): intend to suppress exception
+        target(str): title for exception/ error
+        allow_errors(tuple): list of expected exceptions that intends to raise
     """
     def wrapper(func):
         @functools.wraps(func)
         async def inner(*args, **kwargs):
             try:
                 return await func(*args, **kwargs)
-            except exceptions:
-                logger.error(f"Suppressed {error_name} error: {traceback.format_exc()}")
+            except Exception as exc:
+                logger.error(f"Suppressed {target} error: {traceback.format_exc()}")
                 # Could send error traceback to Slack channel here
-                if suppress_error:
-                    return
-                raise
+                if isinstance(exc, allow_errors):
+                    raise
+                raise HTTPException(
+                    status_code=HTTPStatus.INTERNAL_SERVER_ERROR,
+                    detail=str(exc),
+                ) from exc
         return inner
     return wrapper

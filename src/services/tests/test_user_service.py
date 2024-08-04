@@ -1,10 +1,9 @@
 """Unit tests for user_service module"""
 # pylint: disable=wrong-import-position
-from unittest.mock import AsyncMock, patch
-patch(target='src.services.user_service.pegasus', new=lambda *args, **kwargs: lambda func: func,).start()
+from unittest.mock import AsyncMock
 
 import pytest
-from asyncpg.exceptions import InvalidRowCountInLimitClauseError
+from asyncpg.exceptions import InvalidRowCountInLimitClauseError, NotNullViolationError
 from sqlalchemy.exc import DBAPIError
 from src.services.user_service import UserService
 from src.common.exceptions import NotFoundException, InvalidInputException
@@ -42,10 +41,14 @@ async def test_create_user():
 async def test_update_user():
     """Test UserService.update function"""
     mock_user_repo = AsyncMock()
-    mock_user_repo.update.side_effect = [AttributeError(), None]
+    mock_user_repo.update.side_effect = [AttributeError(), NotNullViolationError("wrong field name"), None]
     mock_user_service = UserService(repository=mock_user_repo)
     # Test in case AttributeError
-    await mock_user_service.update(uuid="-1", data="none")
+    with pytest.raises(NotFoundException):
+        await mock_user_service.update(uuid="-1", data="none")
+    # Test in case NotNullViolationError
+    with pytest.raises(InvalidInputException):
+        await mock_user_service.update(uuid="-1", data="none")
     # Test with having result
     assert await mock_user_service.update(uuid="-1", data="none") == UserChangeGeneralResonpse(message="updated")
 

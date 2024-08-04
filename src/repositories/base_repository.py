@@ -5,6 +5,7 @@ from uuid import UUID
 
 from fastapi import Depends
 from pydantic import BaseModel as SchemaBaseModel
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db.models.base_model import BaseModel
 
@@ -54,11 +55,14 @@ class BaseRepository(ABC, Generic[Model, SchemaModel]):
             uuid(UUID): value to look up record
             data(SchemaBaseModel): data would be updated
         """
-        result: Model | None = await self.db.get(self.model, uuid)
-        for key, value in data.model_dump().items():
-            setattr(result, key, value)
-        await self.db.commit()
-        await self.db.refresh(result)
+        try:
+            result: Model | None = await self.db.get(self.model, uuid)
+            for key, value in data.model_dump().items():
+                setattr(result, key, value)
+            await self.db.commit()
+            await self.db.refresh(result)
+        except IntegrityError as exc:
+            raise exc.orig.__cause__
 
     async def delete(self, uuid: UUID):
         """Remove record fro database
