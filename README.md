@@ -5,6 +5,15 @@ python-api-template
 ![Python badge](https://badgen.net/pypi/python/black)
 ![Test badge](https://badgen.net/badge/test%20coverage/100%25/green)
 
+Table of contents:
+
+[1. Introduction](#1-introduction)<br>
+[2. Development guide](#2-developement-guide)<br>
+[3. Three Layer Architecture](#3-three-layer-architecture)<br>
+[4. CI flow](#4-ci-flow)<br>
+[5. API docs](#5-api-docs)<br>
+
+
 # 1. Introduction
 The source code shows an example for Python-Api-Template that contains 2 components:
 - API services
@@ -16,7 +25,89 @@ Otherwise, it strictly enforces following conventions:
 - Unit tests - Code coverage reaches `100%`
 - Capture incremental changes for CI-flow
 
-# 2. Three Layer Architecture
+# 2. Developement guide
+- Start docker-compose:
+```bash
+$ make start_docker_compose
+Docker compose up...
+[+] Running 2/2
+ ✔ Container postgres_for_python_api  Healthy                                                                                                     0.5s 
+ ✔ Container python_api               Running
+# Check active docker containers
+$ docker ps
+CONTAINER ID   IMAGE        COMMAND                  CREATED         STATUS                            PORTS                      NAMES
+1ce6d34f6a9d   python_api   "uvicorn src.api.app…"   4 seconds ago   Up 2 seconds (health: starting)   127.0.0.1:8009->8009/tcp   python_api
+608899aa0824   postgres     "docker-entrypoint.s…"   30 hours ago    Up 30 hours (healthy)             127.0.0.1:5432->5432/tcp   postgres_for_python_api
+```
+
+- Run integration tests
+```bash
+$ make run_integration_tests
+```
+
+<details>
+<summary>Click here to see output</summary>
+
+```bash
+connected 
+-----------
+         1
+(1 row)
+
+⇨ Test api_health_check
+__Passed__: actual={"message":"200 OK"} == expected={"message":"200 OK"}
+⇨ Test empty user_list
+__Passed__: actual={"total":0,"count":0,"users":[]} == expected={"total":0,"count":0,"users":[]}
+⇨ Test create_user
+__Passed__: actual={"message":"created"} == expected={"message":"created"}
+__Passed__: actual={"message":"created"} == expected={"message":"created"}
+__Passed__: actual={"message":"created"} == expected={"message":"created"}
+__Passed__: actual={"message":"created"} == expected={"message":"created"}
+__Passed__: actual={"message":"created"} == expected={"message":"created"}
+__Passed__: actual={"message":"created"} == expected={"message":"created"}
+__Passed__: actual={"message":"created"} == expected={"message":"created"}
+__Passed__: actual=7 == expected=7
+⇨ Test update_user
+__Passed__: actual={"message":"updated"} == expected={"message":"updated"}
+__Passed__: actual={"message":"updated"} == expected={"message":"updated"}
+__Passed__: actual={"message":"updated"} == expected={"message":"updated"}
+__Passed__: actual={"message":"updated"} == expected={"message":"updated"}
+__Passed__: actual={"message":"updated"} == expected={"message":"updated"}
+__Passed__: actual=7 == expected=7
+⇨ Test update_user by wrong uuid format
+__Passed__: actual={"detail":[{"type":"uuid_parsing","loc":["query","uuid"],"msg":"Input should be a valid UUID, invalid group count: expected 5, found 2","input":"-1","ctx":{"error":"invalid group count: expected 5, found 2"}}]} == expected={"detail":[{"type":"uuid_parsing","loc":["query","uuid"],"msg":"Input should be a valid UUID, invalid group count: expected 5, found 2","input":"-1","ctx":{"error":"invalid group count: expected 5, found 2"}}]}
+⇨ Test update_user by not found uuid
+__Passed__: actual={"error":"User not found"} == expected={"error":"User not found"}
+⇨ Test update_user by wrong schema
+__Passed__: actual={"error":"null value in column "name" of relation "users" violates not-null constraint"} == expected={"error":"null value in column "name" of relation "users" violates not-null constraint"}
+⇨ Test delete_user
+__Passed__: actual={"message":"deleted"} == expected={"message":"deleted"}
+__Passed__: actual={"message":"deleted"} == expected={"message":"deleted"}
+__Passed__: actual={"message":"deleted"} == expected={"message":"deleted"}
+__Passed__: actual={"message":"deleted"} == expected={"message":"deleted"}
+__Passed__: actual={"message":"deleted"} == expected={"message":"deleted"}
+__Passed__: actual=2 == expected=2
+⇨ Test get_user
+__Passed__: actual=user2 == expected=user2
+⇨ Test get_user by wrong uuid format
+__Passed__: actual={"detail":[{"type":"uuid_parsing","loc":["query","uuid"],"msg":"Input should be a valid UUID, invalid group count: expected 5, found 2","input":"-1","ctx":{"error":"invalid group count: expected 5, found 2"}}]} == expected={"detail":[{"type":"uuid_parsing","loc":["query","uuid"],"msg":"Input should be a valid UUID, invalid group count: expected 5, found 2","input":"-1","ctx":{"error":"invalid group count: expected 5, found 2"}}]}
+⇨ Test get_user by not found user
+__Passed__: actual={"error":"User not found"} == expected={"error":"User not found"}
+► Done integration test!
+```
+</details>
+
+- Stop docker-compose
+```bash
+$ make stop_docker_compose
+Docker compose down...
+[+] Running 3/3
+ ✔ Container python_api               Removed                                                                                                     0.5s 
+ ✔ Container postgres_for_python_api  Removed                                                                                                     0.2s 
+ ✔ Network python_api_template        Removed                                                                                                     0.2s
+```
+
+# 3. Three Layer Architecture
 ```bash
 $ tree -L 1 src/
 src/
@@ -34,9 +125,9 @@ The interface layer includes `api` module and `schemas` module. That should defi
 The service layer includes `services` module. That should store business logic. Service layer acts as an intermediate layer between the API layer and database layer.
 
 ## Database layer
-The database layer includes `repositories` module and `db` module. That should contains database connectors, data models. This layer accepts the processed data from the service layer and perform queries and operations to interact with the database.
+The database layer includes `repositories` module and `db` module. That should contain database connectors, data models. This layer accepts the processed data from the service layer and perform queries and operations to interact with the database.
 
-# 3. CI flow
+# 4. CI flow
 <p style="text-align:center;"><img src="./ci/images/github-ci.png" width="80%" /></p>
 
 The image above illustrates CI-flow. In particular,
@@ -46,7 +137,7 @@ The image above illustrates CI-flow. In particular,
 - `Run integration tests`: execute bash script to run test cases.
 - `Complete job`: clean up orphan processes.
 
-# 4. API docs
+# 5. API docs
 - Host: http://127.0.0.1:8009/api/v1
 
 ## Health check
