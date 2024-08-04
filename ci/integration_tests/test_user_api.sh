@@ -68,12 +68,17 @@ actual=$(call_user_list | jq --raw-output ".total")
 expected=7
 assess_results "${actual}" "${expected}"
 
+printf "Test update_user by wrong uuid format\n"
+actual=$(call_user_update "-1" '{"name": "fake1"}' 2>/dev/null)
+expected='{"detail":[{"type":"uuid_parsing","loc":["query","uuid"],"msg":"Input should be a valid UUID, invalid group count: expected 5, found 2","input":"-1","ctx":{"error":"invalid group count: expected 5, found 2"}}]}'
+assess_results "${actual}" "${expected}"
+
 printf "Test update_user by not found uuid\n"
 actual=$(call_user_update "a00a0aaa-0aa0-00a0-00aa-0a0aa0aa00a0" '{"name": "fake1"}' 2>/dev/null)
 expected='{"error":"User not found"}'
 assess_results "${actual}" "${expected}"
 
-printf "Test update_user by wrong field name\n"
+printf "Test update_user by wrong schema\n"
 uuid=$(call_user_list | jq --raw-output ".users[].uuid" | tail -1)
 actual=$(call_user_update "${uuid}" '{"wrong_field_name": "fake1"}' 2>/dev/null)
 expected='{"error":"null value in column \"name\" of relation \"users\" violates not-null constraint"}'
@@ -94,12 +99,12 @@ actual=$(call_user_get $(call_user_list | jq --raw-output ".users[].uuid" | tail
 expected='user2'
 assess_results "${actual}" "${expected}"
 
-printf "Test get_user_by_wrong_uuid_format\n"
+printf "Test get_user by wrong uuid format\n"
 actual=$(call_user_get -1)
 expected='{"detail":[{"type":"uuid_parsing","loc":["query","uuid"],"msg":"Input should be a valid UUID, invalid group count: expected 5, found 2","input":"-1","ctx":{"error":"invalid group count: expected 5, found 2"}}]}'
 assess_results "${actual}" "${expected}"
 
-printf "Test get_user_by_user_not_found\n"
+printf "Test get_user by not found user\n"
 actual="$(call_user_get accfd78c-f0dc-4683-90bb-d63de643e852)"
 expected='{"error":"User not found"}'
 assess_results "${actual}" "${expected}"

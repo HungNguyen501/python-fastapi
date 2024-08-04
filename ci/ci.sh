@@ -53,7 +53,6 @@ verify_changes () {
         --noshow_progress \
         --output package  \
         "kind(test, rdeps(//..., set(${files[*]})))" 2>/dev/null)
-    
     if [[ ! -z ${tests} ]]; then
         for test in ${tests[@]}; do run_unit_tests ${test}; done
     fi
