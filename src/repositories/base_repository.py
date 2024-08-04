@@ -5,7 +5,6 @@ from uuid import UUID
 
 from fastapi import Depends
 from pydantic import BaseModel as SchemaBaseModel
-from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.db.models.base_model import BaseModel
 
@@ -24,54 +23,22 @@ class BaseRepository(ABC, Generic[Model, SchemaModel]):
         self.db = db
         self.model = model
 
+    @abstractmethod
     async def get(self, uuid: UUID) -> SchemaModel:
-        """Fetch record from DB based on uuid value
-
-            Args:
-                uuid(UUID): value to look up record
-
-            Returns data of record
-        """
-        result: Model | None = await self.db.get(self.model, uuid)
-        return result
+        """Fetch record from DB based on uuid value"""
+        raise NotImplementedError()
 
     @abstractmethod
     async def create(self, data: SchemaBaseModel):
-        """Create a record in database
-
-        Args:
-            data(SchemaBaseModel): data of record would be inserted
-        """
-        model_instance: Model = self.model(**data.model_dump())
-        self.db.add(model_instance)
-        await self.db.commit()
-        await self.db.refresh(model_instance)
+        """Create a record in database"""
+        raise NotImplementedError()
 
     @abstractmethod
     async def update(self, uuid: UUID, data: SchemaBaseModel):
-        """Update record based on its uuid
+        """Update record in database"""
+        raise NotImplementedError()
 
-        Args:
-            uuid(UUID): value to look up record
-            data(SchemaBaseModel): data would be updated
-        """
-        try:
-            result: Model | None = await self.db.get(self.model, uuid)
-            for key, value in data.model_dump().items():
-                setattr(result, key, value)
-            await self.db.commit()
-            await self.db.refresh(result)
-        except IntegrityError as exc:
-            raise exc.orig.__cause__
-
+    @abstractmethod
     async def delete(self, uuid: UUID):
-        """Remove record fro database
-
-        Args:
-            uuid(UUID): value to look up record
-        """
-        result: Model | None = await self.db.get(self.model, uuid)
-        if not result:
-            raise TypeError
-        await self.db.delete(result)
-        await self.db.commit()
+        """Remove record from database"""
+        raise NotImplementedError()

@@ -6,7 +6,7 @@ from fastapi import Depends
 
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import DBAPIError
+from sqlalchemy.exc import DBAPIError, IntegrityError
 from src.repositories.base_repository import BaseRepository
 from src.db.models import UserModel
 from src.db.database import get_db_session
@@ -14,18 +14,60 @@ from src.schemas.user_schema import UserInDB, UserCreate, UserUpdate
 
 
 class UserRepository(BaseRepository[UserModel, UserInDB]):
-    """UserRepository interacts with User table in database"""
+    """UserRepository interacts with users table in database"""
     def __init__(self, db: AsyncSession = Depends(get_db_session)) -> None:
         """Constructor"""
         super().__init__(UserModel, db)
 
+    async def get(self, uuid: UUID) -> UserModel:
+        """Fetch user record from DB based on uuid value
+
+        Args:
+            uuid(UUID): value to look up record
+
+        Returns data of record
+        """
+        result: UserModel | None = await self.db.get(self.model, uuid)
+        return result
+
     async def create(self, data: UserCreate):
-        """Create new user"""
-        await super().create(data)
+        """Create new user in database
+
+        Args:
+            data(SchemaBaseModel): data of record would be inserted
+        """
+        model_instance: UserModel = self.model(**data.model_dump())
+        self.db.add(model_instance)
+        await self.db.commit()
+        await self.db.refresh(model_instance)
 
     async def update(self, uuid: UUID, data: UserUpdate):
-        """Update user"""
-        await super().update(uuid, data)
+        """Update user in databases
+
+        Args:
+            uuid(UUID): value to look up record
+            data(SchemaBaseModel): user data would be updated
+        """
+        try:
+            result: UserModel | None = await self.db.get(self.model, uuid)
+            for key, value in data.model_dump().items():
+                setattr(result, key, value)
+            await self.db.commit()
+            await self.db.refresh(result)
+        except IntegrityError as exc:
+            raise exc.orig.__cause__
+
+    async def delete(self, uuid: UUID):
+        """Remove user from database
+
+        Args:
+            uuid(UUID): value to look up record
+        """
+        result: UserModel | None = await self.db.get(self.model, uuid)
+        if not result:
+            raise TypeError
+        await self.db.delete(result)
+        await self.db.commit()
 
     async def list_users(self, start: int, page_size: int) -> List[UserModel]:
         """Retrieve user list from user table
@@ -43,7 +85,7 @@ class UserRepository(BaseRepository[UserModel, UserInDB]):
         return user_list
 
     async def count_user_number(self,) -> int:
-        """Returns user count"""
+        """Returns count number of users"""
         # pylint: disable=not-callable
         user_count = await self.db.scalar(select(func.count(UserModel.uuid)))
         return user_count

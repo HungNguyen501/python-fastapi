@@ -5,10 +5,10 @@ PYTHON='python3'
 install () {
     ${PYTHON} --version
 	${PYTHON} -m pip install --upgrade pip --quiet --break-system-packages
-    echo "Installing..."
+    echo "► Installing..."
     cat ./ci/requirements.txt 
 	${PYTHON} -m pip install --quiet -r ./ci/requirements.txt --break-system-packages
-    echo "Done"
+    echo "► Done!"
 }
 
 check_pep8 () {
@@ -27,11 +27,13 @@ run_unit_tests () {
 
 run_integration_tests () {
     set -e
+    echo "► Start integration tests..."
     bash ./ci/integration_tests/test_database.sh test_connection
     bash ./ci/integration_tests/test_database.sh test_tables_deletion
     bash ./ci/integration_tests/test_database.sh test_tables_creation
     bash ./ci/integration_tests/test_user_api.sh
     bash ./ci/integration_tests/test_database.sh test_tables_deletion
+    echo "► Done integration test!"
 }
 
 verify_changes () {
