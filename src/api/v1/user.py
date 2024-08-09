@@ -8,7 +8,7 @@ from src.schemas.user_schema import (
     UserInDB,
     UserChangeGeneralResonpse,
 )
-from src.services.user_service import UserService
+from src.services import UserService
 
 
 router = APIRouter()

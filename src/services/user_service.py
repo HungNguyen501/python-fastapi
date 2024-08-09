@@ -11,7 +11,7 @@ from fastapi import Depends
 from sqlalchemy.exc import DBAPIError
 from src.common.exception_handler import pegasus
 from src.common.exceptions import NotFoundException, InvalidInputException
-from src.repositories.user_repository import UserRepository
+from src.repositories import UserRepository
 from src.services.base_service import BaseService
 from src.schemas.user_schema import (
     UserCreate,
@@ -71,6 +71,7 @@ class UserService(BaseService):
 
         Raises:
             AttributeError: If update operation does not find any records
+            NotNullViolationError: If data of UserUpdate is invalid
         """
         try:
             await self.repository.update(uuid, data)
@@ -88,7 +89,7 @@ class UserService(BaseService):
             uuid(UUID): value to look up
 
         Raises:
-            TypeError: If delte operation does not find any records
+            TypeError: If delete operation does not find any records
         """
         try:
             await self.repository.delete(uuid)
@@ -107,6 +108,10 @@ class UserService(BaseService):
         Returns:
             number of records
             array of user records
+
+        Raises:
+            InvalidRowCountInLimitClauseError: If limit value is not valid
+            InvalidRowCountInResultOffsetClauseError: If offset value is not valid
         """
         try:
             user_count = await self.repository.count_user_number()

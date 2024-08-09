@@ -3,7 +3,6 @@ from uuid import UUID
 from typing import List
 
 from fastapi import Depends
-
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import DBAPIError, IntegrityError
@@ -47,6 +46,9 @@ class UserRepository(BaseRepository[UserModel, UserInDB]):
         Args:
             uuid(UUID): value to look up record
             data(SchemaBaseModel): user data would be updated
+
+        Raises:
+            IntegrityError: If data of UserUpdate conficts with table schema
         """
         try:
             result: UserModel | None = await self.db.get(self.model, uuid)
@@ -62,6 +64,9 @@ class UserRepository(BaseRepository[UserModel, UserInDB]):
 
         Args:
             uuid(UUID): value to look up record
+
+        Raises:
+            TypeError: If result is empty
         """
         result: UserModel | None = await self.db.get(self.model, uuid)
         if not result:
@@ -77,6 +82,9 @@ class UserRepository(BaseRepository[UserModel, UserInDB]):
             page_size(int): maximum record number returned
 
         Returns list of user models
+
+        Raises:
+            DBAPIError: If select stament causes error
         """
         try:
             user_list = await self.db.scalars(select(UserModel).limit(page_size).offset(start))

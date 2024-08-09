@@ -77,6 +77,8 @@ class DatabaseSessionManager:  # pylint: disable=too-few-public-methods
         """Provision session from session maker
 
         Returns AsyncGeneratorContextManager of AsyncSession
+
+        Raises exception that might occur in db session
         """
         if self._sessionmaker is None:
             raise TypeError("DatabaseSessionManager is not initialized")

@@ -21,9 +21,9 @@ The source code shows an example for Python-Api-Template that contains 2 compone
 
 Otherwise, it strictly enforces following conventions:
 - [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html)
-- Qualify PEP8 convention
+- PEP8 standards
 - Unit tests - Code coverage reaches `100%`
-- Capture incremental changes for CI-flow
+- Capturing incremental changes for CI-flow
 
 # 2. Developement guide
 - Start docker-compose:
@@ -122,7 +122,7 @@ src/
 The interface layer includes `api` module and `schemas` module. That should define API endpoints and interact with service layer.
 
 ## Service layer
-The service layer includes `services` module. That should store business logic. Service layer acts as an intermediate layer between the API layer and database layer.
+The service layer includes `services` module. That should store business logic. Service layer acts as an intermediate layer between the Interface layer and Database layer.
 
 ## Database layer
 The database layer includes `repositories` module and `db` module. That should contain database connectors, data models. This layer accepts the processed data from the service layer and perform queries and operations to interact with the database.
@@ -132,7 +132,7 @@ The database layer includes `repositories` module and `db` module. That should c
 
 The image above illustrates CI-flow. In particular,
 - `Install environments`: set up OS, Git env, also, install Bazel.
-- `Check incremental changes`: get changed files from Git and detect dependencies by Bazel. After that, it verifies Pep8 convention and unit tests that qualifies 100% code coverage.
+- `Check incremental changes`: get changed files from Git and detect dependencies by Bazel. After that, it verifies Pep8 convention and runs unit tests that qualifies 100% code coverage as criteria.
 - `Build docker compose`: build FastAPI service and Postgres DB
 - `Run integration tests`: execute bash script to run test cases.
 - `Complete job`: clean up orphan processes.
