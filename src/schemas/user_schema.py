@@ -10,7 +10,7 @@ class UserUpdate(BaseModel):
     password: str
 
 
-class UserCreate(UserUpdate):
+class UserCreate(BaseModel):
     """User create request"""
     name: str
     password: str

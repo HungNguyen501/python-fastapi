@@ -6,12 +6,22 @@ call_health_check () {
     curl --connect-timeout 5 --retry 10 --retry-delay 3 --retry-all-errors "${API_URI}/health" 2>/dev/null
 }
 
+call_user_login () {
+    curl --connect-timeout 5 --location --request POST "${API_URI}/auth" \
+        --header 'accept: application/json' \
+        --form 'grant_type="password"' \
+        --form "username=${1}" \
+        --form "password=${2}" 2>/dev/null
+}
+
 call_user_get () {
-    curl --connect-timeout 5 --location "${API_URI}/user?uuid=${1}" 2>/dev/null
+    curl --connect-timeout 5 --location --request GET "${API_URI}/user" \
+        --header "Authorization: Bearer ${1}" \
+        --header 'Content-Type: application/json' 2>/dev/null
 }
 
 call_user_list () {
-    curl --location "${API_URI}/user/list?start=0&page_size=10" 2>/dev/null
+    curl --connect-timeout 5 --location "${API_URI}/user/list?start=0&page_size=10" 2>/dev/null
 }
 
 call_user_create () {
@@ -21,90 +31,94 @@ call_user_create () {
 }
 
 call_user_update () {
-    curl --connect-timeout 5 --location --request PUT "${API_URI}/user?uuid=${1}" \
-    --header 'Content-Type: application/json' \
-    --data "${2}"
+    curl --connect-timeout 5 --location --request PUT "${API_URI}/user" \
+        --header "Authorization: Bearer ${1}" \
+        --header 'Content-Type: application/json' \
+        --data "${2}"
 }
 
 call_user_delete () {
-    curl --connect-timeout 5 --location --request DELETE "${API_URI}/user?uuid=${1}"
+    curl --connect-timeout 5 --location --request DELETE "${API_URI}/user" \
+        --header "Authorization: Bearer ${1}" \
+        --header 'Content-Type: application/json'
 }
 
 assess_results () {
     if [[ "${1}" != "${2}" ]]; then
-        printf "__Failed__: actual=${1} <> expected=${2}\n"
+        echo "__Failed__: actual=${1} <> expected=${2}"
         exit 1
     fi
-    printf "__Passed__: actual=${1} == expected=${2}\n"
+    echo "__Passed__: actual=${1} == expected=${2}"
 }
 
-printf "⇨ Test api_health_check\n"
+echo "⇨ Test api_health_check"
 actual=$(call_health_check)
 expected='{"message":"200 OK"}'
 assess_results "${actual}" "${expected}"
 
-printf "⇨ Test empty user_list\n"
+echo "⇨ Test empty user_list"
 actual=$(call_user_list)
 expected="{\"total\":0,\"count\":0,\"users\":[]}"
 assess_results "${actual}" "${expected}"
 
-printf "⇨ Test create_user\n"
-for data in '{"name": "user1"}' '{"name": "user2"}' '{"name": "user3"}' '{"name": "user4"}' '{"name": "user5"}' '{"name": "user6"}' '{"name": "user7"}'; do
+echo "⇨ Test create_user"
+for data in '{"name": "user1", "password": "123"}' '{"name": "user2", "password": "123"}' '{"name": "user3", "password": "123"}'; do
     actual=$(call_user_create "${data}" 2>/dev/null)
     expected='{"message":"created"}'
     assess_results "${actual}" "${expected}"
 done
 actual=$(call_user_list | jq --raw-output ".total")
-expected=7
+expected=3
 assess_results "${actual}" "${expected}"
 
-printf "⇨ Test update_user\n"
-for uuid in $(call_user_list | jq --raw-output ".users[].uuid" | tail -5); do
-    actual=$(call_user_update "${uuid}" '{"name": "fake1"}' 2>/dev/null)
+echo "⇨ Test user_login"
+actual=$(call_user_login "user1" "123" | jq --raw-output ".token_type")
+expected="bearer"
+assess_results "${actual}" "${expected}"
+actual=$(call_user_login "fake_name" "fake_pass")
+expected='{"error":"Incorrect username or password"}'
+assess_results "${actual}" "${expected}"
+
+echo "⇨ Test update_user"
+for username in $(call_user_list | jq --raw-output ".users[].name" | tail -1); do
+    access_token=$(call_user_login "${username}" "123" | jq --raw-output ".access_token")
+    actual=$(call_user_update ${access_token} '{"password": "456"}' 2>/dev/null)
     expected='{"message":"updated"}'
     assess_results "${actual}" "${expected}"
 done
 actual=$(call_user_list | jq --raw-output ".total")
-expected=7
+expected=3
 assess_results "${actual}" "${expected}"
 
-printf "⇨ Test update_user by wrong uuid format\n"
-actual=$(call_user_update "-1" '{"name": "fake1"}' 2>/dev/null)
-expected='{"detail":[{"type":"uuid_parsing","loc":["query","uuid"],"msg":"Input should be a valid UUID, invalid group count: expected 5, found 2","input":"-1","ctx":{"error":"invalid group count: expected 5, found 2"}}]}'
+echo "⇨ Test update_username"
+access_token=$(call_user_login "$(call_user_list | jq --raw-output ".users[].name" | tail -1)" "456" | jq --raw-output ".access_token")
+actual=$(call_user_update ${access_token} '{"username": "f8"}' 2>/dev/null)
+expected='{"detail":[{"type":"missing","loc":["body","password"],"msg":"Field required","input":{"username":"f8"}}]}'
 assess_results "${actual}" "${expected}"
 
-printf "⇨ Test update_user by not found uuid\n"
-actual=$(call_user_update "a00a0aaa-0aa0-00a0-00aa-0a0aa0aa00a0" '{"name": "fake1"}' 2>/dev/null)
-expected='{"error":"User not found"}'
+echo "⇨ Test update_user failed"
+access_token=$(call_user_login "$(call_user_list | jq --raw-output ".users[].name" | tail -1)" "123" | jq --raw-output ".access_token")
+actual=$(call_user_update ${access_token} '{"password": "123"}' 2>/dev/null)
+expected='{"error":"Invalid credentials"}'
 assess_results "${actual}" "${expected}"
 
-printf "⇨ Test update_user by wrong schema\n"
-uuid=$(call_user_list | jq --raw-output ".users[].uuid" | tail -1)
-actual=$(call_user_update "${uuid}" '{"wrong_field_name": "fake1"}' 2>/dev/null)
-expected='{"error":"null value in column \"name\" of relation \"users\" violates not-null constraint"}'
+echo "⇨ Test delete_user"
+access_token=$(call_user_login "$(call_user_list | jq --raw-output ".users[].name" | tail -1)" "456" | jq --raw-output ".access_token")
+actual=$(call_user_delete ${access_token} 2>/dev/null)
+expected='{"message":"deleted"}'
 assess_results "${actual}" "${expected}"
-
-printf "⇨ Test delete_user\n"
-for uuid in $(call_user_list | jq --raw-output ".users[].uuid" | tail -5); do
-    actual=$(call_user_delete "${uuid}" 2>/dev/null)
-    expected='{"message":"deleted"}'
-    assess_results "${actual}" "${expected}"
-done
+# Check user_count
 actual=$(call_user_list | jq --raw-output ".total")
 expected=2
 assess_results "${actual}" "${expected}"
 
-printf "⇨ Test get_user\n"
-actual=$(call_user_get $(call_user_list | jq --raw-output ".users[].uuid" | tail -1) | jq --raw-output ".name")
-expected='user2'
+echo "⇨ Test get_user"
+access_token=$(call_user_login "$(call_user_list | jq --raw-output ".users[].name" | tail -1)" "123" | jq --raw-output ".access_token")
+actual=$(call_user_get ${access_token} 2>/dev/null | jq --raw-output ".password")
+expected='$2b$12$eeeeeeeeeeeeeeeeeeeeeedJLEz7e/.bs.BVKXsxbOT1ORiO5/EAe'
 assess_results "${actual}" "${expected}"
 
-printf "⇨ Test get_user by wrong uuid format\n"
-actual=$(call_user_get -1)
-expected='{"detail":[{"type":"uuid_parsing","loc":["query","uuid"],"msg":"Input should be a valid UUID, invalid group count: expected 5, found 2","input":"-1","ctx":{"error":"invalid group count: expected 5, found 2"}}]}'
-assess_results "${actual}" "${expected}"
-
-printf "⇨ Test get_user by not found user\n"
-actual="$(call_user_get accfd78c-f0dc-4683-90bb-d63de643e852)"
-expected='{"error":"User not found"}'
+echo "⇨ Test get_user by invalid credentials"
+actual=$(call_user_get "fake_access_token" 2>/dev/null)
+expected='{"error":"Invalid credentials"}'
 assess_results "${actual}" "${expected}"

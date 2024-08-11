@@ -6,6 +6,7 @@ install () {
     ${PYTHON} --version
 	${PYTHON} -m pip install --upgrade pip --quiet --break-system-packages
     echo "► Installing..."
+    sudo apt-get install redis-tools -y 2>/dev/null
     cat ./ci/requirements.txt 
 	${PYTHON} -m pip install --quiet -r ./ci/requirements.txt --break-system-packages
     echo "► Done!"
@@ -27,18 +28,23 @@ run_unit_tests () {
 
 run_integration_tests () {
     set -e
-    export POSTGRES_HOST=127.0.0.1
-    export POSTGRES_PORT=5432
     export POSTGRES_USER=local
     export POSTGRES_PASSWORD=local
+    export POSTGRES_HOST=127.0.0.1
+    export POSTGRES_PORT=5432
     export POSTGRES_DB=local
+    export REDIS_HOST=127.0.0.1
+    export REDIS_PORT=6379
+    export SECRET_KEY=09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
+    export ALGORITHM=HS256
+    export ACCESS_TOKEN_EXPIRE_MINUTES=5
     echo "► Start integration tests..."
     bash ./ci/integration_tests/test_database.sh test_connection
     bash ./ci/integration_tests/test_database.sh test_tables_deletion
     bash ./ci/integration_tests/test_database.sh test_tables_creation
     bash ./ci/integration_tests/test_redis_db.sh test_remove_all_keys
-    # bash ./ci/integration_tests/test_user_api.sh
-    # bash ./ci/integration_tests/test_database.sh test_tables_deletion
+    bash ./ci/integration_tests/test_user_api.sh
+    bash ./ci/integration_tests/test_database.sh test_tables_deletion
     echo "► Done integration test!"
 }
 

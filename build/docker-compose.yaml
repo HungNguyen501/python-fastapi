@@ -8,6 +8,8 @@ services:
       POSTGRES_USER: local
       POSTGRES_PASSWORD: local
       POSTGRES_DB: local
+      REDIS_HOST: redis_for_python_api
+      REDIS_PORT: 6379
     build:
       context: ../
       dockerfile: build/Dockerfile

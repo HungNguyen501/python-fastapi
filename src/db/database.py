@@ -103,6 +103,5 @@ class DatabaseSessionManager:  # pylint: disable=too-few-public-methods
 async def get_db_session():
     """Retrive database session from DatabaseSessionManager"""
     session_manager = DatabaseSessionManager()
-    print(session_manager)
     async with session_manager.get_session() as session:
         yield session
