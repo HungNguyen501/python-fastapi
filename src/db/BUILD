@@ -31,7 +31,7 @@ py_test(
     ],
     deps = [
         "//src/db:database",
-        "//src/common:configs",
+        "//src/common:settings",
     ],
 )
 

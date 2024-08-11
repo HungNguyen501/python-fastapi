@@ -63,10 +63,10 @@ py_test(
     ],
     deps = [
         "//src/services:auth_service",
-        "//src/repositories:user_service",
+        "//src/services:user_service",
         "//src/common:exceptions",
         "//src/common:crypto",
         "//src/common:settings",
-        "//src/common:redis_db",
+        "//src/db:redis_db",
     ],
 )
