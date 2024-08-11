@@ -49,11 +49,14 @@ $ make run_integration_tests
 <summary>Click here to see output</summary>
 
 ```bash
-connected 
+► Start integration tests...
+ connected 
 -----------
          1
 (1 row)
 
+OK
+Redis: count keys=0
 ⇨ Test api_health_check
 __Passed__: actual={"message":"200 OK"} == expected={"message":"200 OK"}
 ⇨ Test empty user_list
@@ -62,37 +65,24 @@ __Passed__: actual={"total":0,"count":0,"users":[]} == expected={"total":0,"coun
 __Passed__: actual={"message":"created"} == expected={"message":"created"}
 __Passed__: actual={"message":"created"} == expected={"message":"created"}
 __Passed__: actual={"message":"created"} == expected={"message":"created"}
-__Passed__: actual={"message":"created"} == expected={"message":"created"}
-__Passed__: actual={"message":"created"} == expected={"message":"created"}
-__Passed__: actual={"message":"created"} == expected={"message":"created"}
-__Passed__: actual={"message":"created"} == expected={"message":"created"}
-__Passed__: actual=7 == expected=7
+__Passed__: actual=3 == expected=3
+⇨ Test user_login
+__Passed__: actual=bearer == expected=bearer
+__Passed__: actual={"error":"Incorrect username or password"} == expected={"error":"Incorrect username or password"}
 ⇨ Test update_user
 __Passed__: actual={"message":"updated"} == expected={"message":"updated"}
-__Passed__: actual={"message":"updated"} == expected={"message":"updated"}
-__Passed__: actual={"message":"updated"} == expected={"message":"updated"}
-__Passed__: actual={"message":"updated"} == expected={"message":"updated"}
-__Passed__: actual={"message":"updated"} == expected={"message":"updated"}
-__Passed__: actual=7 == expected=7
-⇨ Test update_user by wrong uuid format
-__Passed__: actual={"detail":[{"type":"uuid_parsing","loc":["query","uuid"],"msg":"Input should be a valid UUID, invalid group count: expected 5, found 2","input":"-1","ctx":{"error":"invalid group count: expected 5, found 2"}}]} == expected={"detail":[{"type":"uuid_parsing","loc":["query","uuid"],"msg":"Input should be a valid UUID, invalid group count: expected 5, found 2","input":"-1","ctx":{"error":"invalid group count: expected 5, found 2"}}]}
-⇨ Test update_user by not found uuid
-__Passed__: actual={"error":"User not found"} == expected={"error":"User not found"}
-⇨ Test update_user by wrong schema
-__Passed__: actual={"error":"null value in column "name" of relation "users" violates not-null constraint"} == expected={"error":"null value in column "name" of relation "users" violates not-null constraint"}
+__Passed__: actual=3 == expected=3
+⇨ Test update_username
+__Passed__: actual={"detail":[{"type":"missing","loc":["body","password"],"msg":"Field required","input":{"username":"f8"}}]} == expected={"detail":[{"type":"missing","loc":["body","password"],"msg":"Field required","input":{"username":"f8"}}]}
+⇨ Test update_user failed
+__Passed__: actual={"error":"Invalid credentials"} == expected={"error":"Invalid credentials"}
 ⇨ Test delete_user
-__Passed__: actual={"message":"deleted"} == expected={"message":"deleted"}
-__Passed__: actual={"message":"deleted"} == expected={"message":"deleted"}
-__Passed__: actual={"message":"deleted"} == expected={"message":"deleted"}
-__Passed__: actual={"message":"deleted"} == expected={"message":"deleted"}
 __Passed__: actual={"message":"deleted"} == expected={"message":"deleted"}
 __Passed__: actual=2 == expected=2
 ⇨ Test get_user
-__Passed__: actual=user2 == expected=user2
-⇨ Test get_user by wrong uuid format
-__Passed__: actual={"detail":[{"type":"uuid_parsing","loc":["query","uuid"],"msg":"Input should be a valid UUID, invalid group count: expected 5, found 2","input":"-1","ctx":{"error":"invalid group count: expected 5, found 2"}}]} == expected={"detail":[{"type":"uuid_parsing","loc":["query","uuid"],"msg":"Input should be a valid UUID, invalid group count: expected 5, found 2","input":"-1","ctx":{"error":"invalid group count: expected 5, found 2"}}]}
-⇨ Test get_user by not found user
-__Passed__: actual={"error":"User not found"} == expected={"error":"User not found"}
+__Passed__: actual=$2b$12$eeeeeeeeeeeeeeeeeeeeeedJLEz7e/.bs.BVKXsxbOT1ORiO5/EAe == expected=$2b$12$eeeeeeeeeeeeeeeeeeeeeedJLEz7e/.bs.BVKXsxbOT1ORiO5/EAe
+⇨ Test get_user by invalid credentials
+__Passed__: actual={"error":"Invalid credentials"} == expected={"error":"Invalid credentials"}
 ► Done integration test!
 ```
 </details>
@@ -139,11 +129,11 @@ The image above illustrates CI-flow. In particular,
 
 # 5. API docs
 - Host: http://127.0.0.1:8009/api/v1
-
+- Swagger UI: http://127.0.0.1:8009/docs
 ## Health check
-Get API health check
+*Get API health check*
 
-- **URL:** `/health`
+- **URL:** `/api/v1/health`
 - **Method:** `GET`
 - **Success Response:**
     - Code: `200`
@@ -155,14 +145,15 @@ Get API health check
     ```
 
 ## Create User
-Insert user record
+*Insert user record*
 
-- **URL:** `/user`
+- **URL:** `/api/v1/user`
 - **Method:** `POST`
 - **Payload**
   ```python
   {
-    "name": string
+    "name": string,
+    "password": string
   }
   ```
 - **Success Response:**
@@ -173,19 +164,34 @@ Insert user record
         "message": "created"
     }
     ```
-## Update User
-Update user information
+## Login
+*Login by user credentials*
 
-- **URL:** `/user?uuid={1}`
+- **URL:** `/api/v1/auth`
+- **Method:** `POST`
+- **Form**
+    - `grant_type`(string): `password`
+    - `username`(string)
+    - `password`(string)
+- **Success Response:**
+    - Code: `200`
+    - Content:
+    ```python
+    {
+        "access_token": "token value here",
+        "token_type": "bearer"
+    }
+    ```
+
+## Update User
+*Update user information*
+
+- **URL:** `/api/v1/user`
 - **Method:** `PUT`
-- **Params**
-    - `uuid`(string): uuid of user
-- **Payload**
-  ```python
-  {
-    "name": string
-  }
-  ```
+- **Header**
+    - `'Content-Type: application/json'`
+    - `Authorization: Bearer {access_token}`
+- **Payload**: `{"name": string}`
 - **Success Response:**
     - Code: `200`
     - Content:
@@ -195,12 +201,13 @@ Update user information
     }
     ```
 ## Delete User
-Delete user record
+*Delete user record*
 
-- **URL:** `/user?uuid={1}`
+- **URL:** `/api/v1/user`
 - **Method:** `DELETE`
-- **Params**
-    - `uuid`(string): uuid of user
+- **Header**
+    - `'Content-Type: application/json'`
+    - `Authorization: Bearer {access_token}`
 - **Success Response:**
     - Code: `200`
     - Content:
@@ -211,26 +218,28 @@ Delete user record
     ```
 
 ## Get User
-Get user information
+*Get user information*
 
-- **URL:** `/user?uuid={1}`
+- **URL:** `/api/v1/user`
 - **Method:** `GET`
-- **Params**:
-    - `uuid`(string): uuid of user
+- **Header**
+    - `'Content-Type: application/json'`
+    - `Authorization: Bearer {access_token}`
 - **Success Response:**
     - Code: `200`
     - Content:
     ```python
     {
         "uuid": "a00a0aaa-0aa0-00a0-00aa-0a0aa0aa00a0",
-        "name": "alice"
+        "name": "alice",
+        "password": "$dagdagdga%dadadad"
     }
     ```
 
 ## List User
-Get list of user information
+*Get list of user information*
 
-- **URL:** `/user/list?start={1}&page_size={2}`
+- **URL:** `/api/v1/user/list?start={1}&page_size={2}`
 - **Method:** `GET`
 - **Params**:
     - `start`(integer): start index of user list

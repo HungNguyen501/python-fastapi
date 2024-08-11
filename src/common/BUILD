@@ -1,6 +1,12 @@
 py_library(
-    name = "configs",
-    srcs = ["configs.py"],
+    name = "crypto",
+    srcs = ["crypto.py"],
+    visibility = ["//visibility:public"],
+)
+
+py_library(
+    name = "settings",
+    srcs = ["settings.py"],
     visibility = ["//visibility:public"],
 )
 
@@ -17,9 +23,9 @@ py_library(
 )
 
 py_test(
-    name = "test_configs",
-    srcs = ["tests/test_configs.py"],
-    main = "tests/test_configs.py",
+    name = "test_settings",
+    srcs = ["tests/test_settings.py"],
+    main = "tests/test_settings.py",
     timeout = "short",
     args = [
         "-vv",
@@ -30,7 +36,7 @@ py_test(
         "yourit",
     ],
     deps = [
-        "//src/common:configs",
+        "//src/common:settings",
     ],
 )
 
