@@ -35,10 +35,14 @@ class UserRepository(BaseRepository[UserModel, UserInDB]):
         Args:
             data(SchemaBaseModel): data of record would be inserted
         """
-        model_instance: UserModel = self.model(**data.model_dump())
-        self.db.add(model_instance)
-        await self.db.commit()
-        await self.db.refresh(model_instance)
+        try:
+            model_instance: UserModel = self.model(**data.model_dump())
+            self.db.add(model_instance)
+            await self.db.commit()
+            await self.db.refresh(model_instance)
+            return model_instance
+        except IntegrityError as exc:
+            raise exc.orig.__cause__
 
     async def update(self, uuid: UUID, data: UserUpdate):
         """Update user in databases
@@ -52,7 +56,7 @@ class UserRepository(BaseRepository[UserModel, UserInDB]):
         """
         try:
             result: UserModel | None = await self.db.get(self.model, uuid)
-            for key, value in data.model_dump().items():
+            for key, value in data.model_dump(exclude_none=True).items():
                 setattr(result, key, value)
             await self.db.commit()
             await self.db.refresh(result)

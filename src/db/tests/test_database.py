@@ -5,15 +5,14 @@ import pytest
 from src.db.database import DatabaseConnection, DatabaseSessionManager, get_db_session
 
 
-@patch(target="src.common.configs.OsVariable")
 @patch(
-    target="src.common.configs.Config.get",
-    side_effect=["jane", "fake", "local", "-1", "dum_db"])
+    target="src.db.database.get_settings",)
 @patch(target="src.db.database.BaseModel")
 @patch(target="src.db.database.create_engine")
-def test_db_connection(mock_create_engine, mock_base_model, *_):
+def test_db_connection(mock_create_engine, mock_base_model, mock_settings, *_):
     """Test db connect/ disconnect  function"""
     with DatabaseConnection() as mock_conn:
+        assert mock_settings.mock_calls ==1
         assert mock_create_engine.call_args == call(
             url='postgresql+psycopg2://jane:fake@local:-1/dum_db')
         mock_conn.create_tables()

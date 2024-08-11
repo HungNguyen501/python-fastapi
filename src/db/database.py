@@ -9,7 +9,7 @@ from sqlalchemy.ext.asyncio import (
     create_async_engine,
 )
 from sqlalchemy import create_engine
-from src.common.configs import Config, OsVariable
+from src.common.settings import get_settings
 from src.db.models import BaseModel
 
 
@@ -18,26 +18,26 @@ class DatabaseConnection:
     def __init__(self,):
         """Constructor"""
         self._url = f"postgresql+psycopg2://" \
-                    f"{Config.get(OsVariable.POSTGRES_USER)}:{Config.get(OsVariable.POSTGRES_PASSWORD)}" \
-                    f"@{Config.get(OsVariable.POSTGRES_HOST)}:{Config.get(OsVariable.POSTGRES_PORT)}" \
-                    f"/{Config.get(OsVariable.POSTGRES_DB)}"
-        self._conn = None
+                    f"{get_settings().POSTGRES_USER}:{get_settings().POSTGRES_PASSWORD}" \
+                    f"@{get_settings().POSTGRES_HOST}:{get_settings().POSTGRES_PORT}" \
+                    f"/{get_settings().POSTGRES_DB}"
+        self._engine = None
 
     def connect(self,):
         """Connect to DB"""
-        self._conn = create_engine(url=self._url)
+        self._engine = create_engine(url=self._url)
 
     def disconnect(self,):
         """Disconnect from DB"""
-        self._conn.dispose()
+        self._engine.dispose()
 
     def create_tables(self,):
         """Create all tables from metadata"""
-        BaseModel.metadata.create_all(bind=self._conn)
+        BaseModel.metadata.create_all(bind=self._engine)
 
     def drop_tables(self,):
         """Drop all tables from metadata"""
-        BaseModel.metadata.drop_all(bind=self._conn)
+        BaseModel.metadata.drop_all(bind=self._engine)
 
     def __enter__(self,):
         """Enter context"""
@@ -58,9 +58,9 @@ class DatabaseSessionManager:  # pylint: disable=too-few-public-methods
     def __init__(self,):
         """Constructor"""
         self._url = f"postgresql+asyncpg://" \
-                    f"{Config.get(OsVariable.POSTGRES_USER)}:{Config.get(OsVariable.POSTGRES_PASSWORD)}" \
-                    f"@{Config.get(OsVariable.POSTGRES_HOST)}:{Config.get(OsVariable.POSTGRES_PORT)}" \
-                    f"/{Config.get(OsVariable.POSTGRES_DB)}"
+                    f"{get_settings().POSTGRES_USER}:{get_settings().POSTGRES_PASSWORD}" \
+                    f"@{get_settings().POSTGRES_HOST}:{get_settings().POSTGRES_PORT}" \
+                    f"/{get_settings().POSTGRES_DB}"
         self._engine = create_async_engine(url=self._url, pool_size=2)
         self._sessionmaker = async_sessionmaker(autocommit=False, bind=self._engine)
 
@@ -91,9 +91,18 @@ class DatabaseSessionManager:  # pylint: disable=too-few-public-methods
         finally:
             await session.close()
 
+    async def __aenter__(self,):
+        """Enter context"""
+        return self
+
+    async def __aexit__(self, *_):
+        """Exit context"""
+        await self.close()
+
 
 async def get_db_session():
     """Retrive database session from DatabaseSessionManager"""
     session_manager = DatabaseSessionManager()
+    print(session_manager)
     async with session_manager.get_session() as session:
         yield session

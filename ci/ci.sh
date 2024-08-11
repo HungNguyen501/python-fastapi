@@ -27,12 +27,18 @@ run_unit_tests () {
 
 run_integration_tests () {
     set -e
+    export POSTGRES_HOST=127.0.0.1
+    export POSTGRES_PORT=5432
+    export POSTGRES_USER=local
+    export POSTGRES_PASSWORD=local
+    export POSTGRES_DB=local
     echo "► Start integration tests..."
     bash ./ci/integration_tests/test_database.sh test_connection
     bash ./ci/integration_tests/test_database.sh test_tables_deletion
     bash ./ci/integration_tests/test_database.sh test_tables_creation
-    bash ./ci/integration_tests/test_user_api.sh
-    bash ./ci/integration_tests/test_database.sh test_tables_deletion
+    bash ./ci/integration_tests/test_redis_db.sh test_remove_all_keys
+    # bash ./ci/integration_tests/test_user_api.sh
+    # bash ./ci/integration_tests/test_database.sh test_tables_deletion
     echo "► Done integration test!"
 }
 

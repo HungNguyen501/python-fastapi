@@ -2,20 +2,20 @@
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
+from src.services import AuthService, UserService, get_current_user_uuid
 from src.schemas.user_schema import (
     UserCreate,
     UserUpdate,
     UserInDB,
     UserChangeGeneralResonpse,
 )
-from src.services import UserService
 
 
 router = APIRouter()
 
 
 @router.get(path="", response_model=UserInDB)
-async def get_user(uuid: UUID, user_service: UserService = Depends()):
+async def get_user(uuid: UUID = Depends(get_current_user_uuid), user_service: UserService = Depends()):
     """Get user record from database
 
     Args:
@@ -28,20 +28,20 @@ async def get_user(uuid: UUID, user_service: UserService = Depends()):
 
 
 @router.post(path="", response_model=UserChangeGeneralResonpse)
-async def create_user(data: UserCreate, user_service: UserService = Depends()):
+async def create_user(data: UserCreate, auth_service: AuthService = Depends()):
     """Insert user record into database
 
     Args:
         data(UserCreate): store user name
-        user_service(UserService): service to retrive data
+        auth_service(AuthService): authentication service
 
     Returns insertion status
     """
-    return await user_service.create(data=data)
+    return await auth_service.create_user(data=data)
 
 
 @router.put(path="", response_model=UserChangeGeneralResonpse)
-async def update_user(uuid: UUID, data: UserUpdate, user_service: UserService = Depends()):
+async def update_user(data: UserUpdate, uuid: UUID = Depends(get_current_user_uuid), user_service: UserService = Depends()):
     """Update user info into database
 
     Args:
@@ -55,7 +55,7 @@ async def update_user(uuid: UUID, data: UserUpdate, user_service: UserService = 
 
 
 @router.delete(path="", response_model=UserChangeGeneralResonpse)
-async def delete_user(uuid: UUID, user_service: UserService = Depends()):
+async def delete_user(uuid: UUID = Depends(get_current_user_uuid), user_service: UserService = Depends()):
     """Remove user record from database
 
     Args:

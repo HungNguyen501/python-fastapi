@@ -29,6 +29,8 @@ services:
     depends_on:
       postgres_for_python_api:
         condition: service_healthy
+      redis_for_python_api:
+        condition: service_healthy
   postgres_for_python_api:
     image: postgres
     container_name: postgres_for_python_api
@@ -50,6 +52,23 @@ services:
         mode: host
     networks:
       - python_api_template
+  redis_for_python_api:
+    image: redis
+    container_name: redis_for_python_api
+    restart: always
+    networks:
+      - python_api_template
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    ports:
+      - target: 6379
+        host_ip: 127.0.0.1
+        published: 6379
+        protocol: tcp
+        mode: host
 
 networks:
   python_api_template:

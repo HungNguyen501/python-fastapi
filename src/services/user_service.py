@@ -6,9 +6,11 @@ from asyncpg.exceptions import (
     InvalidRowCountInLimitClauseError,
     InvalidRowCountInResultOffsetClauseError,
     NotNullViolationError,
+    UniqueViolationError,
 )
 from fastapi import Depends
 from sqlalchemy.exc import DBAPIError
+from src.common.crypto import hash_password
 from src.common.exception_handler import pegasus
 from src.common.exceptions import NotFoundException, InvalidInputException
 from src.repositories import UserRepository
@@ -44,24 +46,32 @@ class UserService(BaseService):
         try:
             result = await self.repository.get(uuid)
         except DBAPIError as exc:
-            raise InvalidInputException(deatil="Invalid UUID") from exc
+            raise InvalidInputException(detail="Invalid UUID") from exc
         if not result:
-            raise NotFoundException(deatil="User not found")
+            raise NotFoundException(detail="User not found")
         return result
 
-    @pegasus(target="user_create api",)
-    async def create(self, data: UserCreate) -> UserChangeGeneralResonpse:
+    @pegasus(target="create user api",)
+    async def create(self, data: UserCreate) -> UserInDB:
         """Create user
 
         Args:
             data(UserCreate): data would be inserted
 
-        Returns status of insertion
-        """
-        await self.repository.create(data)
-        return UserChangeGeneralResonpse(message="created")
+        Returns:
+            status of insertion
 
-    @pegasus(target="user_update api", allow_errors=(NotFoundException, InvalidInputException,))
+        Raises:
+            UniqueViolationError If username is duplicated
+        """
+        try:
+            data.password = hash_password(data.password)
+            new_user = await self.repository.create(data)
+            return new_user
+        except UniqueViolationError as exc:
+            raise InvalidInputException(detail=exc.args[0]) from exc
+
+    @pegasus(target="update user api", allow_errors=(NotFoundException, InvalidInputException,))
     async def update(self, uuid: UUID, data: UserUpdate) -> UserChangeGeneralResonpse:
         """Update user data based its UUID
 
@@ -74,14 +84,16 @@ class UserService(BaseService):
             NotNullViolationError: If data of UserUpdate is invalid
         """
         try:
+            if data.password:
+                data.password = hash_password(data.password)
             await self.repository.update(uuid, data)
         except AttributeError as exc:
             raise NotFoundException("User not found") from exc
         except NotNullViolationError as exc:
-            raise InvalidInputException(deatil=exc.args[0]) from exc
+            raise InvalidInputException(detail=exc.args[0]) from exc
         return UserChangeGeneralResonpse(message="updated")
 
-    @pegasus(target="user_delete api", allow_errors=NotFoundException,)
+    @pegasus(target="delete user api", allow_errors=NotFoundException,)
     async def delete(self, uuid: UUID) -> UserChangeGeneralResonpse:
         """Remove user data based its UUID
 
@@ -97,7 +109,7 @@ class UserService(BaseService):
             raise NotFoundException("User not found") from exc
         return UserChangeGeneralResonpse(message="deleted")
 
-    @pegasus(target="list_users api", allow_errors=InvalidInputException,)
+    @pegasus(target="list user api", allow_errors=InvalidInputException,)
     async def list_users(self, start: int, page_size: int) -> Tuple[int, List[UserInDB]]:
         """List users in User table
 
@@ -118,7 +130,7 @@ class UserService(BaseService):
             user_list = [UserInDB(**user.__dict__)
                          for user in await self.repository.list_users(start=start, page_size=page_size)]
         except (InvalidRowCountInLimitClauseError, InvalidRowCountInResultOffsetClauseError) as exc:
-            raise InvalidInputException(deatil=str(exc)) from exc
+            raise InvalidInputException(detail=str(exc)) from exc
         return UserListResponse(
             total=user_count,
             count=len(user_list),

@@ -7,12 +7,13 @@ from pydantic import BaseModel
 
 class UserUpdate(BaseModel):
     """User update request"""
-    name: str | None = None
+    password: str
 
 
 class UserCreate(UserUpdate):
     """User create request"""
     name: str
+    password: str
 
 
 class UserInDB(UserCreate):

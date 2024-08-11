@@ -5,14 +5,14 @@ from fastapi import FastAPI, HTTPException
 from src.api.v1.router import get_api_router
 from src.common.exception_handler import http_exception_handler, unicorn_exception_handler
 from src.db.database import DatabaseSessionManager
+from src.db.redis_db import RedisPool
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):  # pylint: disable=unused-argument
     """Define startup and shutdown logics in lifetime of application"""
-    session_manager = DatabaseSessionManager()
-    yield
-    await session_manager.close()
+    async with DatabaseSessionManager() as session_manager, RedisPool() as redis_pool:  # noqa: F841 # pylint: disable=unused-variable
+        yield
 
 
 def get_app():
