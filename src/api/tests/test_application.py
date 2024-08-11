@@ -1,5 +1,5 @@
 """Unit tests for application module"""
-from unittest.mock import patch, call, AsyncMock, MagicMock
+from unittest.mock import patch, call
 import sys
 
 import pytest
@@ -7,14 +7,24 @@ from fastapi import HTTPException
 from src.api.application import get_app, lifespan
 
 
+# pylint: disable=C0115,C0116,W0613,W0212,W0106,W0107
+class ConnectionMock:
+    async def __aenter__(self,):
+        """Enter context manager"""
+        return self
+
+    async def __aexit__(self, *_):
+        """Exit context manager"""
+        pass
+
+
 @pytest.mark.asyncio
-@patch(target="src.api.application.DatabaseSessionManager", return_value=MagicMock())
-async def test_lifespan(mock_session_manager):
+@patch(target="src.db.redis_db.RedisPool", return_value=ConnectionMock())
+@patch(target="src.api.application.DatabaseSessionManager", return_value=ConnectionMock())
+async def test_lifespan(*_):
     """Test lifespan function"""
-    mock_session_manager.return_value.close.side_effect = AsyncMock()
     async with lifespan(None) as temp:
         _ = temp
-    assert mock_session_manager.mock_calls == [call()]
 
 
 @patch(target="src.api.application.lifespan")

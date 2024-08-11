@@ -6,7 +6,7 @@ install () {
     ${PYTHON} --version
 	${PYTHON} -m pip install --upgrade pip --quiet --break-system-packages
     echo "► Installing..."
-    sudo apt-get install redis-tools -y 2>/dev/null
+    sudo apt-get install redis-tools -y &>/dev/null
     cat ./ci/requirements.txt 
 	${PYTHON} -m pip install --quiet -r ./ci/requirements.txt --break-system-packages
     echo "► Done!"
