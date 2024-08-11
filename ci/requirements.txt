@@ -5,9 +5,13 @@ flake8
 flake8-pyproject
 freezegun~=1.5.1
 loguru~=0.7.2
+passlib~=1.7.4
 psycopg2-binary~=2.9.9
+pydantic-settings~=2.4.0
+PyJWT~=2.9.0
 pylint
 pytest
 pytest-asyncio
 pytest-cov
+redis~=5.0.8
 SQLAlchemy~=2.0.31
