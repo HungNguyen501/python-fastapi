@@ -19,7 +19,7 @@ class ConnectionMock:
 
 
 @pytest.mark.asyncio
-@patch(target="src.db.redis_db.RedisPool", return_value=ConnectionMock())
+@patch(target="src.api.application.RedisPool", return_value=ConnectionMock())
 @patch(target="src.api.application.DatabaseSessionManager", return_value=ConnectionMock())
 async def test_lifespan(*_):
     """Test lifespan function"""
