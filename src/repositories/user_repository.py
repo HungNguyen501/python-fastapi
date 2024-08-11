@@ -72,7 +72,7 @@ class UserRepository(BaseRepository[UserModel, UserInDB]):
         Raises:
             TypeError: If result is empty
         """
-        result: UserModel | None = await self.db.get(self.model, uuid)
+        result = await self.db.get(self.model, uuid)
         if not result:
             raise TypeError
         await self.db.delete(result)

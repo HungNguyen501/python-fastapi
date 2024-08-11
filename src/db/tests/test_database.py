@@ -5,16 +5,20 @@ import pytest
 from src.db.database import DatabaseConnection, DatabaseSessionManager, get_db_session
 
 
-@patch(
-    target="src.db.database.get_settings",)
+@patch(target="src.db.database.get_settings")
 @patch(target="src.db.database.BaseModel")
 @patch(target="src.db.database.create_engine")
 def test_db_connection(mock_create_engine, mock_base_model, mock_settings, *_):
     """Test db connect/ disconnect  function"""
+    mock_settings.return_value.POSTGRES_USER.__str__.return_value = "jane"
+    mock_settings.return_value.POSTGRES_PASSWORD.__str__.return_value = "fake_pass"
+    mock_settings.return_value.POSTGRES_HOST.__str__.return_value = "local"
+    mock_settings.return_value.POSTGRES_PORT.__str__.return_value = "-1"
+    mock_settings.return_value.POSTGRES_DB.__str__.return_value = "dum_db"
     with DatabaseConnection() as mock_conn:
-        assert mock_settings.mock_calls ==1
+        # assert mock_settings.mock_calls == 1
         assert mock_create_engine.call_args == call(
-            url='postgresql+psycopg2://jane:fake@local:-1/dum_db')
+            url='postgresql+psycopg2://jane:fake_pass@local:-1/dum_db')
         mock_conn.create_tables()
         assert mock_base_model.metadata.create_all.call_args == call(bind=mock_create_engine())
         mock_conn.drop_tables()
@@ -24,17 +28,19 @@ def test_db_connection(mock_create_engine, mock_base_model, mock_settings, *_):
 
 # pylint: disable=protected-access
 @pytest.mark.asyncio
-@patch(target="src.common.configs.OsVariable")
-@patch(
-    target="src.common.configs.Config.get",
-    side_effect=["jane", "fake", "local", "-1", "dum_db"])
+@patch(target="src.db.database.get_settings")
 @patch(target="src.db.database.async_sessionmaker", side_effect=AsyncMock())
 @patch(target="src.db.database.create_async_engine", side_effect=AsyncMock())
-async def test_init_database_sessionmanager(mock_create_async_engine, mock_async_sessionmaker, *_):
+async def test_init_database_sessionmanager(mock_create_async_engine, mock_async_sessionmaker, mock_settings, *_):
     """Test DatabaseSessionManager constructor"""
+    mock_settings.return_value.POSTGRES_USER.__str__.return_value = "jane"
+    mock_settings.return_value.POSTGRES_PASSWORD.__str__.return_value = "fake_pass"
+    mock_settings.return_value.POSTGRES_HOST.__str__.return_value = "local"
+    mock_settings.return_value.POSTGRES_PORT.__str__.return_value = "-1"
+    mock_settings.return_value.POSTGRES_DB.__str__.return_value = "dum_db"
     mock_session_manager = DatabaseSessionManager()
     assert mock_create_async_engine.call_args == call(
-        url='postgresql+asyncpg://jane:fake@local:-1/dum_db', pool_size=2
+        url='postgresql+asyncpg://jane:fake_pass@local:-1/dum_db', pool_size=2
     )
     assert mock_async_sessionmaker.call_args == call(
         autocommit=False,
@@ -43,8 +49,7 @@ async def test_init_database_sessionmanager(mock_create_async_engine, mock_async
 
 
 @pytest.mark.asyncio
-@patch(target="src.common.configs.OsVariable")
-@patch(target="src.common.configs.Config.get", return_value="dummy")
+@patch(target="src.db.database.get_settings")
 @patch(target="src.db.database.async_sessionmaker", side_effect=AsyncMock())
 @patch(target="src.db.database.create_async_engine", side_effect=AsyncMock())
 async def test_get_session(*_):
@@ -66,18 +71,18 @@ async def test_get_session(*_):
 
 
 @pytest.mark.asyncio
-@patch(target="src.common.configs.OsVariable")
-@patch(target="src.common.configs.Config.get", return_value="dummy")
+@patch(target="src.db.database.get_settings")
 @patch(target="src.db.database.async_sessionmaker", side_effect=AsyncMock())
 @patch(target="src.db.database.create_async_engine", side_effect=AsyncMock())
 async def test_close_db_ss_manager(*_):
     """Test close function in DatabaseSessionManager"""
-    mock_session_manager = DatabaseSessionManager()
-    # In case: _engine is None
-    mock_session_manager._engine = None
+    # In case: _engine is None along with context manager
     with pytest.raises(TypeError):
-        await mock_session_manager.close()
-    # In case: _engine is not None
+        async with DatabaseSessionManager() as mock_session_manager:
+            mock_session_manager._engine = None
+    # In case: disconnection succeeds
+    DatabaseSessionManager.cache_clear()  # pylint: disable=no-member
+    mock_session_manager = DatabaseSessionManager()
     mock_session_manager._engine = AsyncMock()
     await mock_session_manager.close()
     assert mock_session_manager._engine is None

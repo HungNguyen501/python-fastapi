@@ -93,8 +93,8 @@ async def get_current_user_uuid(token: Any = Depends(oauth2_schema)):
             key=get_settings().SECRET_KEY,
             algorithms=[get_settings().ALGORITHM]
         )
-        if payload["uuid"] is None:
-            raise CredentialsException(detail="UUID is null")
+        if "uuid" not in payload:
+            raise CredentialsException(detail="Token does not include UUID")
         if payload["expires_at"] < datetime.now(UTC).timestamp():
             raise CredentialsException(detail="Token expires")
         return payload["uuid"]

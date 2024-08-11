@@ -2,7 +2,7 @@
 from unittest.mock import call, AsyncMock, MagicMock
 
 import pytest
-from asyncpg.exceptions import InvalidRowCountInLimitClauseError, NotNullViolationError
+from asyncpg.exceptions import InvalidRowCountInLimitClauseError, NotNullViolationError, UniqueViolationError
 from sqlalchemy.exc import DBAPIError, IntegrityError
 from src.repositories.user_repository import UserRepository
 
@@ -38,11 +38,18 @@ async def test_delete(mock_user_repositoy):
 @pytest.mark.asyncio
 async def test_create(mock_user_repositoy):
     """Test UserRepository.create function"""
+    # Success case
     mock_data = MagicMock()
     await mock_user_repositoy.create(data=mock_data)
     assert mock_user_repositoy.db.add.called
     assert mock_user_repositoy.db.commit.called
     assert mock_user_repositoy.db.refresh.called
+    # IntegrityError due to username duplicated
+    mock_exception = MagicMock()
+    mock_exception.__cause__ = UniqueViolationError("username is duplicated")
+    mock_user_repositoy.db.refresh.side_effect = IntegrityError(statement="", params=None, orig=mock_exception)
+    with pytest.raises(UniqueViolationError):
+        await mock_user_repositoy.create(data=mock_data)
 
 
 @pytest.mark.asyncio

@@ -3,6 +3,7 @@ asynctest
 fastapi~=0.111.0
 flake8
 flake8-pyproject
+freezegun~=1.5.1
 loguru~=0.7.2
 psycopg2-binary~=2.9.9
 pylint

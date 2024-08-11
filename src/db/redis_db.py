@@ -1,5 +1,6 @@
 """Redis Connection module"""
 from functools import cache
+from typing import Any
 
 from redis.asyncio import ConnectionPool, Redis
 from src.common.settings import get_settings
@@ -22,7 +23,7 @@ class RedisPool:
         """Disconnect pool"""
         await self._pool.disconnect()
 
-    async def set(self, key, value):
+    async def set(self, key: Any, value: Any):
         """Insert key to redis"""
         async with Redis(connection_pool=self._pool) as redis_conn:
             await redis_conn.set(name=key, value=value)

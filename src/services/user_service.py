@@ -51,7 +51,7 @@ class UserService(BaseService):
             raise NotFoundException(detail="User not found")
         return result
 
-    @pegasus(target="create user api",)
+    @pegasus(target="create user api", allow_errors=(InvalidInputException,))
     async def create(self, data: UserCreate) -> UserInDB:
         """Create user
 
@@ -87,11 +87,11 @@ class UserService(BaseService):
             if data.password:
                 data.password = hash_password(data.password)
             await self.repository.update(uuid, data)
+            return UserChangeGeneralResonpse(message="updated")
         except AttributeError as exc:
             raise NotFoundException("User not found") from exc
         except NotNullViolationError as exc:
             raise InvalidInputException(detail=exc.args[0]) from exc
-        return UserChangeGeneralResonpse(message="updated")
 
     @pegasus(target="delete user api", allow_errors=NotFoundException,)
     async def delete(self, uuid: UUID) -> UserChangeGeneralResonpse:

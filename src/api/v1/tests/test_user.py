@@ -34,9 +34,9 @@ async def test_get_user(mock_user_service, *_):
 async def test_create_user(*_):
     """Test get_user function"""
     mock_auth_service = AsyncMock()
-    mock_auth_service.create.return_value = {"status": "created"}
+    mock_auth_service.create_user.return_value = {"status": "created"}
     assert await create_user(data={"name": "bob"}, auth_service=mock_auth_service) == {"status": "created"}
-    assert mock_auth_service.create.call_args == call(data={'name': 'bob'})
+    assert mock_auth_service.create_user.call_args == call(data={'name': 'bob'})
 
 
 @pytest.mark.asyncio
