@@ -27,18 +27,26 @@ Otherwise, it strictly enforces following conventions:
 - Capturing incremental changes for CI-flow
 
 # 2. Developement guide
+- Bazel
+```bash
+$ bazel --version
+bazel 7.2.1
+```
 - Start docker-compose:
 ```bash
 $ make start_docker_compose
 Docker compose up...
-[+] Running 2/2
- ✔ Container postgres_for_python_api  Healthy                                                                                                     0.5s 
- ✔ Container python_api               Running
+[+] Running 4/4
+ ✔ Network python_api_template        Created                                                                                                    0.1s 
+ ✔ Container postgres_for_python_api  Healthy                                                                                                   10.9s 
+ ✔ Container redis_for_python_api     Healthy                                                                                                   10.9s 
+ ✔ Container python_api               Started                                                                                                   11.0s
 # Check active docker containers
 $ docker ps
-CONTAINER ID   IMAGE        COMMAND                  CREATED         STATUS                            PORTS                      NAMES
-1ce6d34f6a9d   python_api   "uvicorn src.api.app…"   4 seconds ago   Up 2 seconds (health: starting)   127.0.0.1:8009->8009/tcp   python_api
-608899aa0824   postgres     "docker-entrypoint.s…"   30 hours ago    Up 30 hours (healthy)             127.0.0.1:5432->5432/tcp   postgres_for_python_api
+CONTAINER ID   IMAGE        COMMAND                  CREATED          STATUS                      PORTS                      NAMES
+32baccce4f23   python_api   "uvicorn src.api.app…"   31 seconds ago   Up 20 seconds (unhealthy)   127.0.0.1:8009->8009/tcp   python_api
+6456abb5c3cf   postgres     "docker-entrypoint.s…"   31 seconds ago   Up 30 seconds (healthy)     127.0.0.1:5432->5432/tcp   postgres_for_python_api
+bea8c5ec53b9   redis        "docker-entrypoint.s…"   31 seconds ago   Up 30 seconds (healthy)     127.0.0.1:6379->6379/tcp   redis_for_python_api
 ```
 
 - Run integration tests
@@ -92,10 +100,11 @@ __Passed__: actual={"error":"Invalid credentials"} == expected={"error":"Invalid
 ```bash
 $ make stop_docker_compose
 Docker compose down...
-[+] Running 3/3
- ✔ Container python_api               Removed                                                                                                     0.5s 
- ✔ Container postgres_for_python_api  Removed                                                                                                     0.2s 
- ✔ Network python_api_template        Removed                                                                                                     0.2s
+[+] Running 4/4
+ ✔ Container python_api               Removed                                                                                                    0.6s 
+ ✔ Container redis_for_python_api     Removed                                                                                                    0.2s 
+ ✔ Container postgres_for_python_api  Removed                                                                                                    0.2s 
+ ✔ Network python_api_template        Removed                                                                                                    0.1s 
 ```
 
 # 3. Three Layer Architecture
