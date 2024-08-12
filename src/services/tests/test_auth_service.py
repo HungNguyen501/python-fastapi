@@ -14,9 +14,9 @@ from src.common.exceptions import CredentialsException
 @patch(target="src.services.auth_service.get_settings")
 async def test_auth_service_class(mock_settings):
     """Test AuthService class"""
-    mock_user_service = AsyncMock()
+    mock_base_service = AsyncMock()
     mock_redis_pool = AsyncMock()
-    auth_service = AuthService(mock_user_service, mock_redis_pool)
+    auth_service = AuthService(mock_base_service, mock_redis_pool)
     # Test creat_user function
     mock_data = UserCreate(name="bob", password="1")
     result = await auth_service.create_user(data=mock_data)
@@ -29,7 +29,7 @@ async def test_auth_service_class(mock_settings):
     with pytest.raises(CredentialsException):
         await auth_service.authenticate(username="bob", password="-1")
     mock_user_data = UserInDB(uuid="a00a0aaa-0aa0-00a0-00aa-0a0aa0aa00a0", name="bob", password="$2b$12$eeeeeeeeeeeeeeeeeeeeeeVNjYkVPE40j7qKCyXsS6ba1VUVbOLKO")  # noqa: E501 # pylint: disable=line-too-long
-    auth_service.user_service.get.return_value = mock_user_data
+    auth_service.base_service.get.return_value = mock_user_data
     # In case: password is wrong
     with pytest.raises(CredentialsException):
         await auth_service.authenticate(username="bob", password="0")
