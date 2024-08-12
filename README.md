@@ -15,9 +15,10 @@ Table of contents:
 
 
 # 1. Introduction
-The source code shows an example for Python-Api-Template that contains 2 components:
+The project shows an example for Python-Api-Template that contains 3 components:
 - API services
 - Postgres database
+- Redis
 
 Otherwise, it strictly enforces following conventions:
 - [Google Python Style Guide](https://google.github.io/styleguide/pyguide.html)
