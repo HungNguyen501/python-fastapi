@@ -35,9 +35,6 @@ run_integration_tests () {
     export POSTGRES_DB=local
     export REDIS_HOST=127.0.0.1
     export REDIS_PORT=6379
-    export SECRET_KEY=09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
-    export ALGORITHM=HS256
-    export ACCESS_TOKEN_EXPIRE_MINUTES=5
     echo "► Start integration tests..."
     bash ./ci/integration_tests/test_database.sh test_connection
     bash ./ci/integration_tests/test_database.sh test_tables_deletion
