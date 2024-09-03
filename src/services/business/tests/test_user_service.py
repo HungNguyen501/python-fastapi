@@ -5,8 +5,8 @@ from unittest.mock import AsyncMock
 import pytest
 from asyncpg.exceptions import InvalidRowCountInLimitClauseError, NotNullViolationError, UniqueViolationError
 from sqlalchemy.exc import DBAPIError
-from src.services.user_service import UserService
-from src.common.exceptions import NotFoundException, InvalidInputException
+from src.services.business.user_service import UserService
+from src.exceptions.exceptions import NotFoundException, InvalidInputException
 from src.schemas.user_schema import UserInDB, UserCreate, UserUpdate
 
 

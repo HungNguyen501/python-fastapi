@@ -4,7 +4,7 @@ from unittest.mock import call, patch, MagicMock
 
 import pytest
 from fastapi import HTTPException
-from src.common.exception_handler import (
+from src.exceptions.exception_handler import (
     http_exception_handler,
     unicorn_exception_handler,
     pegasus,
@@ -12,7 +12,7 @@ from src.common.exception_handler import (
 
 
 @pytest.mark.asyncio
-@patch(target="src.common.exception_handler.JSONResponse")
+@patch(target="src.exceptions.exception_handler.JSONResponse")
 async def test_http_exception_handler(mock_resp):
     """Test function http_exception_handler"""
     mock_exc = MagicMock()
@@ -23,7 +23,7 @@ async def test_http_exception_handler(mock_resp):
 
 
 @pytest.mark.asyncio
-@patch(target="src.common.exception_handler.JSONResponse")
+@patch(target="src.exceptions.exception_handler.JSONResponse")
 async def test_unicorn_exception_handler(mock_resp):
     """Test function unicorn_exception_handler"""
     _ = await unicorn_exception_handler(None, "none")

@@ -2,7 +2,7 @@
 from http import HTTPStatus
 
 from fastapi import HTTPException
-from src.common.exceptions import (
+from src.exceptions.exceptions import (
     CredentialsException,
     InvalidInputException,
     NotFoundException,

@@ -4,14 +4,14 @@ from unittest.mock import patch, AsyncMock
 
 from freezegun import freeze_time
 import pytest
-from src.services.auth_service import AuthService, get_current_user_uuid
+from src.services.auth.auth_service import AuthService, get_current_user_uuid
 from src.schemas.user_schema import UserCreate, UserInDB
-from src.common.exceptions import CredentialsException
+from src.exceptions.exceptions import CredentialsException
 
 
 @pytest.mark.asyncio
 @freeze_time("2024-01-01")
-@patch(target="src.services.auth_service.get_settings")
+@patch(target="src.services.auth.auth_service.get_settings")
 async def test_auth_service_class(mock_settings):
     """Test AuthService class"""
     mock_base_service = AsyncMock()
@@ -40,7 +40,7 @@ async def test_auth_service_class(mock_settings):
 
 @pytest.mark.asyncio
 @freeze_time("2024-01-02")
-@patch(target="src.services.auth_service.get_settings")
+@patch(target="src.services.auth.auth_service.get_settings")
 async def test_get_current_user_uuid(mock_settings):
     """Test get_current_user_uuid function"""
     # In case: Invalid credentials

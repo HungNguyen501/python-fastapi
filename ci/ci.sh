@@ -15,6 +15,7 @@ install () {
 check_pep8 () {
     printf "Checking PEP8 convention in ${1}...\n"
     ${PYTHON} -m flake8 ${1} --show-source --statistics && ${PYTHON} -m pylint ${1}
+    if [ $? != 0 ]; then exit 1; fi
 }
 
 run_unit_tests () {
@@ -24,6 +25,7 @@ run_unit_tests () {
         --cov ${1} \
         --cov-report term-missing \
         --cov-fail-under=100
+    if [ $? != 0 ]; then exit 1; fi
 }
 
 run_integration_tests () {
@@ -55,9 +57,8 @@ verify_changes () {
     if [[ -z ${modules} ]]; then
         printf "Changes take no effect.\n" && exit 0
     fi
-    set -e
     # Check convention
-    check_pep8 ${modules}
+    check_pep8 "$(echo ${modules})"
     # Run unit tests
     tests=$(bazel query \
         --keep_going \

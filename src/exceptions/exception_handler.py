@@ -6,7 +6,7 @@ import traceback
 from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
 from loguru import logger
-from src.common.exceptions import UnicornException
+from src.exceptions.exceptions import UnicornException
 
 
 async def http_exception_handler(request: Request, exc: HTTPException):  # pylint: disable=unused-argument

@@ -8,13 +8,13 @@ from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from jwt.exceptions import InvalidTokenError
 from src.common.crypto import verify_password
-from src.common.exceptions import CredentialsException
+from src.exceptions.exceptions import CredentialsException
 from src.common.settings import get_settings
 from src.db.redis_db import get_redis_pool, RedisPool
 from src.schemas.auth_schema import TokenSchema
 from src.schemas.user_schema import UserCreate, UserChangeGeneralResonpse
-from src.services.base_service import BaseService
-from src.services.user_service import UserService
+from src.services.business.base_service import BaseService
+from src.services.business.user_service import UserService
 
 
 oauth2_schema = OAuth2PasswordBearer(tokenUrl="api/v1/auth",)

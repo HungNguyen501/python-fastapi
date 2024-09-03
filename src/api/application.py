@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 
 from src.api.v1.router import get_api_router
-from src.common.exception_handler import http_exception_handler, unicorn_exception_handler
+from src.exceptions.exception_handler import http_exception_handler, unicorn_exception_handler
 from src.db.database import DatabaseSessionManager
 from src.db.redis_db import RedisPool
 

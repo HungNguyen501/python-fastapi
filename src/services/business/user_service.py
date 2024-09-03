@@ -11,10 +11,10 @@ from asyncpg.exceptions import (
 from fastapi import Depends
 from sqlalchemy.exc import DBAPIError
 from src.common.crypto import hash_password
-from src.common.exception_handler import pegasus
-from src.common.exceptions import NotFoundException, InvalidInputException
+from src.exceptions.exception_handler import pegasus
+from src.exceptions.exceptions import NotFoundException, InvalidInputException
 from src.repositories import UserRepository
-from src.services.base_service import BaseService
+from src.services.business.base_service import BaseService
 from src.schemas.user_schema import (
     UserCreate,
     UserUpdate,
