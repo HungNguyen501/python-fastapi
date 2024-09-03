@@ -1,5 +1,6 @@
 ProjectName := Python-Api-Template
 CiScript := ci/ci.sh
+GithookScript := ci/githooks.sh
 IntegrationTest := ci/integration_tests
 
 install:
@@ -25,3 +26,6 @@ start_docker_compose:
 stop_docker_compose:
 	@echo "Docker compose down..."
 	@docker compose -f build/docker-compose.yaml down --volumes --remove-orphans
+
+githook:
+	@bash ./$(GithookScript) create_pre_commit_file
