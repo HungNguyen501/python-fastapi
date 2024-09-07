@@ -5,17 +5,7 @@ import sys
 import pytest
 from fastapi import HTTPException
 from src.api.application import get_app, lifespan
-
-
-# pylint: disable=C0115,C0116,W0613,W0212,W0106,W0107
-class ConnectionMock:
-    async def __aenter__(self,):
-        """Enter context manager"""
-        return self
-
-    async def __aexit__(self, *_):
-        """Exit context manager"""
-        pass
+from src.mocks import ConnectionMock
 
 
 @pytest.mark.asyncio
