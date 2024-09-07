@@ -22,6 +22,7 @@ The project shows an example for Python-Api-Template that contains 3 components:
 $ bazel --version
 bazel 7.2.1
 ```
+- Githook: run `make githook` to add a script into pre-commit in githooks.
 - Start docker-compose:
 ```bash
 $ make start_docker_compose
