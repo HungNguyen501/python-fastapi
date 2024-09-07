@@ -1,76 +1,70 @@
 """Unit tests for user model"""
-from unittest.mock import AsyncMock, call
+import json
 
-import pytest
-from src.api.v1.user import (
-    get_user,
-    create_user,
-    update_user,
-    delete_user,
-    list_users,
-)
+from src.mocks import make_test_client
 
 
-@pytest.fixture(name="mock_user_service", scope="session")
-def gen_mock_user_service():
-    """Mock user service instance"""
-    mock_us = AsyncMock()
-    mock_us.get.return_value = {"uuid": "fool", "name": "alice"}
-    mock_us.create.return_value = {"status": "created"}
-    mock_us.update.return_value = {"status": "updated"}
-    mock_us.delete.return_value = {"status": "deleted"}
-    mock_us.list_users.return_value = {"total": 1, "count": 1, "users": [{"name": "bob"}]}
-    yield mock_us
-
-
-@pytest.mark.asyncio
-async def test_get_user(mock_user_service, *_):
-    """Test get_user function"""
-    assert await get_user(uuid="fool", user_service=mock_user_service) == {"uuid": "fool", "name": "alice"}
-    assert mock_user_service.get.call_args == call(uuid='fool')
-
-
-@pytest.mark.asyncio
-async def test_create_user(*_):
-    """Test get_user function"""
-    mock_auth_service = AsyncMock()
-    mock_auth_service.create_user.return_value = {"status": "created"}
-    assert await create_user(data={"name": "bob"}, auth_service=mock_auth_service) == {"status": "created"}
-    assert mock_auth_service.create_user.call_args == call(data={'name': 'bob'})
-
-
-@pytest.mark.asyncio
-async def test_update_user(mock_user_service, *_):
-    """Test get_user function"""
-    assert await update_user(
-        uuid="fool",
-        data={"name": "bob"},
-        user_service=mock_user_service,
-    ) == {"status": "updated"}
-    assert mock_user_service.update.call_args == call(
-        uuid="fool",
-        data={"name": "bob"},
+def test_get_user():
+    """Test get_user"""
+    response = make_test_client().get(
+        url="/api/v1/user/",
+        headers={
+            "Authorization": "Bearer fake_token",
+            "Accept": "application/json"
+        },
     )
+    assert response.status_code == 200
+    assert response.json()["uuid"] is not None
+    assert response.json()["name"] is not None
+    assert response.json()["password"] is not None
 
 
-@pytest.mark.asyncio
-async def test_delete_user(mock_user_service, *_):
-    """Test get_user function"""
-    assert await delete_user(
-        uuid="fool",
-        user_service=mock_user_service,
-    ) == {"status": "deleted"}
-    assert mock_user_service.delete.call_args == call(uuid="fool",)
+def test_create_user():
+    """Test create_user"""
+    response = make_test_client().post(
+        url="/api/v1/user",
+        headers={"Content-Type": "application/json"},
+        data=json.dumps({
+            "name": "bob",
+            "password": "123"
+        })
+    )
+    assert response.status_code == 200
+    assert response.text == '{"message":"created"}'
 
 
-@pytest.mark.asyncio
-async def test_list_user(mock_user_service, *_):
-    """Test get_user function"""
-    assert await list_users(
-        start=-1,
-        page_size=-10,
-        user_service=mock_user_service,
-    ) == {"total": 1, "count": 1, "users": [{"name": "bob"}]}
-    assert mock_user_service.list_users.call_args == call(
-        start=-1,
-        page_size=-10,)
+def test_update_user():
+    """Test update_user"""
+    response = make_test_client().put(
+        url="/api/v1/user",
+        headers={"Content-Type": "application/json"},
+        data=json.dumps({
+            "password": "123"
+        })
+    )
+    assert response.status_code == 200
+    assert response.text == '{"message":"updated"}'
+
+
+def test_delete_user():
+    """Test delete_user"""
+    response = make_test_client().delete(
+        url="/api/v1/user/",
+        headers={
+            "Authorization": "Bearer fake_token",
+            "Accept": "application/json"
+        },
+    )
+    assert response.status_code == 200
+    assert response.text == '{"message":"deleted"}'
+
+
+def test_list_user():
+    """Test list_users"""
+    response = make_test_client().get(
+        url="/api/v1/user/list?start=0&page_size=10"
+    )
+    assert response.status_code == 200
+    assert response.json()["total"] == 1
+    assert response.json()["count"] == 1
+    assert len(response.json()["users"]) == 1

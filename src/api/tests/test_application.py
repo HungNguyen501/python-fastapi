@@ -5,12 +5,12 @@ import sys
 import pytest
 from fastapi import HTTPException
 from src.api.application import get_app, lifespan
-from src.mocks import ConnectionMock
+from src.mocks import DbConnectionMock
 
 
 @pytest.mark.asyncio
-@patch(target="src.api.application.RedisPool", return_value=ConnectionMock())
-@patch(target="src.api.application.DatabaseSessionManager", return_value=ConnectionMock())
+@patch(target="src.api.application.RedisPool", return_value=DbConnectionMock())
+@patch(target="src.api.application.DatabaseSessionManager", return_value=DbConnectionMock())
 async def test_lifespan(*_):
     """Test lifespan function"""
     async with lifespan(None) as temp:

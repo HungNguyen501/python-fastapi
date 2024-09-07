@@ -2,7 +2,7 @@
 
 
 # pylint: disable=C0115,C0116,W0613,W0212,W0106,W0107
-class ConnectionMock:
+class DbConnectionMock:
     async def __aenter__(self,):
         """Enter context manager"""
         return self
