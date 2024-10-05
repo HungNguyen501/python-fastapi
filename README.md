@@ -9,6 +9,7 @@ Table of contents:
 
 [1. Introduction](#1-introduction)<br>
 [2. Development guide](#2-developement-guide)<br>
+[3. Three Layer Architecture](#3-three-layer-architecture)<br>
 
 # 1. Introduction
 The project shows an example for Python-Api-Template that contains 3 components:
@@ -100,3 +101,23 @@ Docker compose down...
  ✔ Container postgres_for_python_api  Removed                                                                                                    0.2s 
  ✔ Network python_api_template        Removed                                                                                                    0.1s 
 ```
+
+## 3. Three Layer Architecture
+```bash
+$ tree -L 1 src/
+src/
+├── api
+├── common
+├── db
+├── repositories
+├── schemas
+└── services
+```
+### Interface layer
+The interface layer includes `api` module and `schemas` module. That should define API endpoints and interact with service layer.
+
+### Service layer
+The service layer includes `services` module. That should store business logic. Service layer acts as an intermediate layer between the Interface layer and Database layer.
+
+### Database layer
+The database layer includes `repositories` module and `db` module. That should contain database connectors, data models. This layer accepts the processed data from the service layer and perform queries and operations to interact with the database.
