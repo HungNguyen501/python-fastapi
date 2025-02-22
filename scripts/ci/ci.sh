@@ -37,6 +37,9 @@ run_integration_tests () {
     export POSTGRES_DB=local
     export REDIS_HOST=127.0.0.1
     export REDIS_PORT=6379
+    # Create tables
+    make migrate
+    # Run tests
     ${PYTHON} -m pytest src/ \
         --disable-warnings \
         -vv \
