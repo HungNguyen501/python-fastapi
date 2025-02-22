@@ -3,20 +3,20 @@ services:
     image: python_api
     container_name: python_api
     environment:
-      POSTGRES_HOST: postgres_for_python_api
+      POSTGRES_HOST: postgres
       POSTGRES_PORT: 5432
       POSTGRES_USER: local
       POSTGRES_PASSWORD: local
       POSTGRES_DB: local
-      REDIS_HOST: redis_for_python_api
+      REDIS_HOST: redis
       REDIS_PORT: 6379
       SECRET_KEY: 09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
     build:
-      context: ../
-      dockerfile: build/Dockerfile
+      context: .
+      dockerfile: Dockerfile
     command: uvicorn src.api.application:get_app --host 0.0.0.0 --port 8009 --workers 1 --reload
     networks:
-      - python_api_template
+      - python_fastapi
     ports:
       - target: 8009
         host_ip: 127.0.0.1
@@ -30,13 +30,14 @@ services:
       retries: 3
       start_period: 5s
     depends_on:
-      postgres_for_python_api:
+      postgres:
         condition: service_healthy
-      redis_for_python_api:
+      redis:
         condition: service_healthy
-  postgres_for_python_api:
-    image: postgres
-    container_name: postgres_for_python_api
+
+  postgres:
+    image: postgis/postgis:14-3.3
+    container_name: postgres
     restart: always
     environment:
       POSTGRES_USER: local
@@ -54,13 +55,14 @@ services:
         protocol: tcp
         mode: host
     networks:
-      - python_api_template
-  redis_for_python_api:
+      - python_fastapi
+
+  redis:
     image: redis
-    container_name: redis_for_python_api
+    container_name: redis
     restart: always
     networks:
-      - python_api_template
+      - python_fastapi
     healthcheck:
       test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
       interval: 10s
@@ -74,5 +76,5 @@ services:
         mode: host
 
 networks:
-  python_api_template:
-    name: python_api_template
+  python_fastapi:
+    name: python_fastapi

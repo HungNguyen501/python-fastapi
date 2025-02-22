@@ -31,6 +31,13 @@ class DatabaseConnection:
         """Disconnect from DB"""
         self._engine.dispose()
 
+    def truncate_table(self, name: str):
+        """Truncate table"""
+        with self._engine.connect() as conn:
+            trans = conn.begin()
+            conn.execute(BaseModel.metadata.tables[name].delete())
+            trans.commit()
+
     def create_tables(self,):
         """Create all tables from metadata"""
         BaseModel.metadata.create_all(bind=self._engine)

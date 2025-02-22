@@ -42,7 +42,10 @@ signature-mutators = [
 # https://coverage.readthedocs.io/en/latest/config.html
 [tool.coverage.run]
 branch = true
-omit = []
+omit = [
+    "src/common/faker.py",
+    "src/api/v1/tests/integration/*.py"
+]
 
 [tool.coverage.report]
 # Regexes for lines to exclude from consideration

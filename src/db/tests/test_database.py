@@ -18,6 +18,10 @@ def test_db_connection(mock_create_engine, mock_base_model, *_):
         assert mock_base_model.metadata.create_all.call_args == call(bind=mock_create_engine())
         mock_conn.drop_tables()
         assert mock_base_model.metadata.drop_all.call_args == call(bind=mock_create_engine())
+        mock_conn.truncate_table(name="users")
+        assert mock_base_model.metadata.tables.mock_calls == [
+            call.__getitem__('users'), call.__getitem__().delete()  # pylint: disable=unnecessary-dunder-call
+        ]
     assert mock_create_engine.return_value.dispose.assert_called
 
 

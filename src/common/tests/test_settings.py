@@ -8,4 +8,4 @@ from src.common.settings import get_settings
 def test_get_settings(mock_settings):
     """Test get_settings functions"""
     get_settings()
-    assert mock_settings.call_args == call()
+    assert mock_settings.mock_calls == call()

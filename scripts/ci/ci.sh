@@ -1,15 +1,15 @@
 #!/usr/bin/env bash
 
-PYTHON='python3'
+PYTHON='python3.12'
 
 install () {
     ${PYTHON} --version
 	${PYTHON} -m pip install --upgrade pip --quiet --break-system-packages
-    echo "► Installing..."
+    echo ">> Installing..."
     sudo apt-get install redis-tools -y &>/dev/null
-    cat ./ci/requirements.txt 
-	${PYTHON} -m pip install --quiet -r ./ci/requirements.txt --break-system-packages
-    echo "► Done!"
+    cat scripts/ci/requirements.txt 
+	${PYTHON} -m pip install --quiet -r scripts/ci/requirements.txt --break-system-packages
+    echo ">> Done!"
 }
 
 check_pep8 () {
@@ -24,12 +24,12 @@ run_unit_tests () {
         -vv \
         --cov ${1} \
         --cov-report term-missing \
-        --cov-fail-under=100
+        --cov-fail-under=100 \
+        -m "not integration_test"
     if [ $? != 0 ]; then exit 1; fi
 }
 
 run_integration_tests () {
-    set -e
     export POSTGRES_USER=local
     export POSTGRES_PASSWORD=local
     export POSTGRES_HOST=127.0.0.1
@@ -37,14 +37,10 @@ run_integration_tests () {
     export POSTGRES_DB=local
     export REDIS_HOST=127.0.0.1
     export REDIS_PORT=6379
-    echo "► Start integration tests..."
-    bash ./ci/integration_tests/test_database.sh test_connection
-    bash ./ci/integration_tests/test_database.sh test_tables_deletion
-    bash ./ci/integration_tests/test_database.sh test_tables_creation
-    bash ./ci/integration_tests/test_redis_db.sh test_remove_all_keys
-    bash ./ci/integration_tests/test_user_api.sh
-    bash ./ci/integration_tests/test_database.sh test_tables_deletion
-    echo "► Done integration test!"
+    ${PYTHON} -m pytest src/ \
+        --disable-warnings \
+        -vv \
+        -m integration_test
 }
 
 verify_changes () {
