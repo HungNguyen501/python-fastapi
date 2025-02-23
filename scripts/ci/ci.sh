@@ -50,9 +50,9 @@ verify_changes () {
     files=()
     IFS=',' read -r -a changed_files <<< "${1}"
     for file_name in ${changed_files[@]}; do
-        files+=("$(bazel query --keep_going --noshow_progress "${file_name}" ) ")
+        files+=("$(bazel query --keep_going --noshow_progress "${file_name}" ) 2>/dev/null")
     done
-    modules=$(bazel query --noshow_progress --output package "set(${files[*]})" )
+    modules=$(bazel query --noshow_progress --output package "set(${files[*]})" 2>/dev/null)
     if [[ -z ${modules} ]]; then
         printf "Changes take no effect.\n" && exit 0
     fi
@@ -63,7 +63,7 @@ verify_changes () {
         --keep_going \
         --noshow_progress \
         --output package  \
-        "kind(test, rdeps(//..., set(${files[*]})))" )
+        "kind(test, rdeps(//..., set(${files[*]})))" 2>/dev/null)
     if [[ ! -z ${tests} ]]; then
         for test in ${tests[@]}; do run_unit_tests ${test}; done
     fi
