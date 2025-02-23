@@ -10,7 +10,7 @@ from sqlalchemy.ext.asyncio import (
 )
 from sqlalchemy import create_engine
 from src.common.settings import get_settings
-from src.infrastructures.db.models import BaseModel
+from src.infrastructures.databases.models import BaseModel
 
 
 class DatabaseConnection:

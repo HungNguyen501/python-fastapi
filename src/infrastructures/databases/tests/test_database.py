@@ -3,12 +3,12 @@ from unittest.mock import patch, call, AsyncMock, MagicMock
 
 import pytest
 from src.common.tests.mocks import SettingsMock
-from src.infrastructures.db.database import DatabaseConnection, DatabaseSessionManager, get_db_session
+from src.infrastructures.databases import DatabaseConnection, DatabaseSessionManager, get_db_session
 
 
-@patch(target="src.infrastructures.db.database.get_settings", return_value=SettingsMock())
-@patch(target="src.infrastructures.db.database.BaseModel")
-@patch(target="src.infrastructures.db.database.create_engine")
+@patch(target="src.infrastructures.databases.database.get_settings", return_value=SettingsMock())
+@patch(target="src.infrastructures.databases.database.BaseModel")
+@patch(target="src.infrastructures.databases.database.create_engine")
 def test_db_connection(mock_create_engine, mock_base_model, *_):
     """Test db connect/ disconnect  function"""
     with DatabaseConnection() as mock_conn:
@@ -27,9 +27,9 @@ def test_db_connection(mock_create_engine, mock_base_model, *_):
 
 # pylint: disable=protected-access
 @pytest.mark.asyncio
-@patch(target="src.infrastructures.db.database.get_settings", return_value=SettingsMock())
-@patch(target="src.infrastructures.db.database.async_sessionmaker", side_effect=AsyncMock())
-@patch(target="src.infrastructures.db.database.create_async_engine", side_effect=AsyncMock())
+@patch(target="src.infrastructures.databases.database.get_settings", return_value=SettingsMock())
+@patch(target="src.infrastructures.databases.database.async_sessionmaker", side_effect=AsyncMock())
+@patch(target="src.infrastructures.databases.database.create_async_engine", side_effect=AsyncMock())
 async def test_init_database_sessionmanager(mock_create_async_engine, mock_async_sessionmaker, *_):
     """Test DatabaseSessionManager constructor"""
     mock_session_manager = DatabaseSessionManager()
@@ -43,9 +43,9 @@ async def test_init_database_sessionmanager(mock_create_async_engine, mock_async
 
 
 @pytest.mark.asyncio
-@patch(target="src.infrastructures.db.database.get_settings")
-@patch(target="src.infrastructures.db.database.async_sessionmaker", side_effect=AsyncMock())
-@patch(target="src.infrastructures.db.database.create_async_engine", side_effect=AsyncMock())
+@patch(target="src.infrastructures.databases.database.get_settings")
+@patch(target="src.infrastructures.databases.database.async_sessionmaker", side_effect=AsyncMock())
+@patch(target="src.infrastructures.databases.database.create_async_engine", side_effect=AsyncMock())
 async def test_get_session(*_):
     """Test get_session function in DatabaseSessionManager"""
     mock_session_manager = DatabaseSessionManager()
@@ -65,9 +65,9 @@ async def test_get_session(*_):
 
 
 @pytest.mark.asyncio
-@patch(target="src.infrastructures.db.database.get_settings")
-@patch(target="src.infrastructures.db.database.async_sessionmaker", side_effect=AsyncMock())
-@patch(target="src.infrastructures.db.database.create_async_engine", side_effect=AsyncMock())
+@patch(target="src.infrastructures.databases.database.get_settings")
+@patch(target="src.infrastructures.databases.database.async_sessionmaker", side_effect=AsyncMock())
+@patch(target="src.infrastructures.databases.database.create_async_engine", side_effect=AsyncMock())
 async def test_close_db_ss_manager(*_):
     """Test close function in DatabaseSessionManager"""
     # In case: _engine is None along with context manager
@@ -84,8 +84,8 @@ async def test_close_db_ss_manager(*_):
 
 
 @pytest.mark.asyncio
-@patch(target="src.infrastructures.db.database.async_sessionmaker", side_effect=AsyncMock())
-@patch(target="src.infrastructures.db.database.DatabaseSessionManager", return_value=MagicMock())
+@patch(target="src.infrastructures.databases.database.async_sessionmaker", side_effect=AsyncMock())
+@patch(target="src.infrastructures.databases.database.DatabaseSessionManager", return_value=MagicMock())
 async def test_get_db_session(*_):
     """Test get_db_session function"""
     assert len([i async for i in get_db_session()]) > 0

@@ -10,7 +10,7 @@ from jwt.exceptions import InvalidTokenError
 from src.common.crypto import verify_password
 from src.exceptions.exceptions import CredentialsException
 from src.common.settings import get_settings
-from src.infrastructures.db.redis_db import get_redis_pool, RedisPool
+from src.infrastructures.databases import get_redis_pool, RedisPool
 from src.schemas.auth_schema import TokenSchema
 from src.schemas.user_schema import UserCreate, UserChangeGeneralResonpse
 from src.services.business.base_service import BaseService

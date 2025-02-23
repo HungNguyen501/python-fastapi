@@ -1,9 +1,7 @@
 """Integration tests for user api"""
-import os
-
 import httpx
 import pytest
-from src.infrastructures.db.database import DatabaseConnection
+from src.infrastructures.databases import DatabaseConnection
 from src.common.faker import StringFaker
 
 
@@ -105,7 +103,7 @@ def test_invalid_credentials(client):
     assert response.json() == {"error": "Incorrect username or password"}
 
 
-@pytest.mark.skipif(os.getenv("INTEGRATION_TEST") != "ENABLE", reason="Only run tests when enabling integration_tests")
+@pytest.mark.integration_test
 def test_list_user(client, db):
     """Test user list api"""
     db.truncate_table(name="users")

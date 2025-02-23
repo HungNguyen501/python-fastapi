@@ -2,15 +2,15 @@
 from unittest.mock import call, patch, AsyncMock
 
 import pytest
-from src.infrastructures.db.tests.mocks import RedisMock
+from src.infrastructures.databases.tests.mocks import RedisMock
 from src.common.tests.mocks import SettingsMock
-from src.infrastructures.db.redis_db import RedisPool, get_redis_pool
+from src.infrastructures.databases import RedisPool, get_redis_pool
 
 
 @pytest.mark.asyncio
-@patch(target="src.infrastructures.db.redis_db.get_settings", return_value=SettingsMock())
-@patch(target="src.infrastructures.db.redis_db.Redis", return_value=RedisMock())
-@patch(target="src.infrastructures.db.redis_db.ConnectionPool", side_effect=AsyncMock())
+@patch(target="src.infrastructures.databases.redis_db.get_settings", return_value=SettingsMock())
+@patch(target="src.infrastructures.databases.redis_db.Redis", return_value=RedisMock())
+@patch(target="src.infrastructures.databases.redis_db.ConnectionPool", side_effect=AsyncMock())
 async def test_redis_pool(mock_connection_pool, *_):
     """Test RedisPool class"""
     async with RedisPool() as pool:

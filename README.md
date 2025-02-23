@@ -5,7 +5,30 @@ Python FastAPI Example
 ![Python badge](https://badgen.net/pypi/python/black)
 ![Test badge](https://badgen.net/badge/test%20coverage/100%25/green)
 
-## 1. Prerequisites
+## 1. Layered architecture
+This layered architecture can be seen translated to an application in the following diagram:
+```bash
+.
+├── scripts
+│   ├── build
+│   └── ci
+└── src
+    ├── api
+    │   └── v1  # Controllers for the api
+    ├── common  # Ultility functions
+    ├── exceptions  # Exception handler
+    ├── infrastructures
+    │   ├── databases  # Database initlizations
+    │   │   ├── models  # Database models
+    │   │   └── sql  # Database migration scripts
+    │   └── repositories  # Repositories for interacting with the databases
+    ├── schemas  # Marshmallow for schemas
+    └── services  # Services for interacting with the domains
+        ├── auth
+        └── business
+```
+
+## 2. Prerequisites
 - Bazel
 ```bash
 $ bazel --version
@@ -22,7 +45,7 @@ $ python3.12 --version
 Python 3.12.9
 ```
 
-## 2. Developement guide
+## 3. Developement guide
 - Install requirements:
 ```bash
 $ make install

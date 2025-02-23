@@ -4,8 +4,8 @@ from fastapi import FastAPI, HTTPException
 
 from src.api.v1.router import get_api_router
 from src.exceptions.exception_handler import http_exception_handler, unicorn_exception_handler
-from src.infrastructures.db.database import DatabaseSessionManager
-from src.infrastructures.db.redis_db import RedisPool
+from src.infrastructures.databases import DatabaseSessionManager
+from src.infrastructures.databases import RedisPool
 
 
 @asynccontextmanager

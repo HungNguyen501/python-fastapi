@@ -5,7 +5,7 @@ import sys
 import pytest
 from fastapi import HTTPException
 from src.api.application import get_app, lifespan
-from src.infrastructures.db.tests.mocks import DbConnectionMock
+from src.infrastructures.databases.tests.mocks import DbConnectionMock
 
 
 @pytest.mark.asyncio

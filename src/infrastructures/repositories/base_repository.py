@@ -6,7 +6,7 @@ from uuid import UUID
 from fastapi import Depends
 from pydantic import BaseModel as SchemaBaseModel
 from sqlalchemy.ext.asyncio import AsyncSession
-from src.infrastructures.db.models.base_model import BaseModel
+from src.infrastructures.databases.models.base_model import BaseModel
 
 Model = TypeVar("Model", bound=BaseModel)
 SchemaModel = TypeVar("SchemaModel", bound=SchemaBaseModel)
