@@ -50,7 +50,7 @@ verify_changes () {
     files=()
     IFS=',' read -r -a changed_files <<< "${1}"
     for file_name in ${changed_files[@]}; do
-        files+=("$(bazel query --keep_going --noshow_progress "${file_name}" ) 2>/dev/null")
+        files+=("$(bazel query --keep_going --noshow_progress "${file_name}"  2>/dev/null)")
     done
     modules=$(bazel query --noshow_progress --output package "set(${files[*]})" 2>/dev/null)
     if [[ -z ${modules} ]]; then
