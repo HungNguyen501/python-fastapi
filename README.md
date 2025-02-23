@@ -1,4 +1,4 @@
-python-api-template
+Python FastAPI Example
 ===
 
 ![Github badge](https://badgen.net/badge/icon/github?icon=github&label)
