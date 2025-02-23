@@ -30,7 +30,7 @@ py_test(
         "yourit",
     ],
     deps = [
-        "//src/db:database",
+        "//src/infrastructures/db:database",
         "//src/common:settings",
     ],
 )
@@ -49,7 +49,7 @@ py_test(
         "yourit",
     ],
     deps = [
-        "//src/db:redis_db",
+        "//src/infrastructures/db:redis_db",
         "//src/common:settings",
     ],
 )

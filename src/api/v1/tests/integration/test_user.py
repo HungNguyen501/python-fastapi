@@ -3,8 +3,8 @@ import os
 
 import httpx
 import pytest
-from src.db.database import DatabaseConnection
-from src.common.faker import random_name, random_password
+from src.infrastructures.db.database import DatabaseConnection
+from src.common.faker import StringFaker
 
 
 @pytest.mark.integration_test
@@ -28,8 +28,8 @@ def test_user_apis(client, db):
     """Test create, login, get, update, delete user apis"""
     db.truncate_table(name="users")
 
-    username = random_name()
-    password = random_password()
+    username = StringFaker.random_name()
+    password = StringFaker.random_password()
     # Create user
     create_response = client.post(
         url="http://127.0.0.1:8009/api/v1/user",
@@ -73,7 +73,7 @@ def test_user_apis(client, db):
             "Authorization": f"Bearer {access_token}",
             "Content-Type": "application/json"
         },
-        json={"password": random_password()}
+        json={"password": StringFaker.random_password()}
     )
     assert update_response.status_code == 200
     assert update_response.json() == {"message": "updated"}
@@ -97,8 +97,8 @@ def test_invalid_credentials(client):
         headers={"accept": "application/json"},
         data={
             "grant_type": "password",
-            "username": random_name(),
-            "password": random_password()
+            "username": StringFaker.random_name(),
+            "password": StringFaker.random_password()
         }
     )
     assert response.status_code == 401
@@ -116,8 +116,8 @@ def test_list_user(client, db):
             url="http://127.0.0.1:8009/api/v1/user",
             headers={"Content-Type": "application/json"},
             json={
-                "name": random_name(),
-                "password": random_password()
+                "name": StringFaker.random_name(),
+                "password": StringFaker.random_password()
             }
         )
         assert create_response.status_code == 200

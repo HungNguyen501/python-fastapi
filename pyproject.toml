@@ -39,12 +39,24 @@ signature-mutators = [
     "click.decorators.confirmation_option",
 ]
 
+
+# https://docs.pytest.org/en/stable/how-to/capture-warnings.html#warnings
+[tool.pytest.ini_options]
+filterwarnings = [
+    # "error",
+    "ignore::pytest.PytestDeprecationWarning",
+    # note the use of single quote below to denote "raw" strings in TOML
+    'ignore:function ham\(\) is deprecated:DeprecationWarning',
+]
+
+
 # https://coverage.readthedocs.io/en/latest/config.html
 [tool.coverage.run]
 branch = true
 omit = [
-    "src/common/faker.py",
-    "src/api/v1/tests/integration/*.py"
+    "src/common/faker/*.py",
+    "src/api/v1/tests/integration/*.py",
+    "*/mocks/*"
 ]
 
 [tool.coverage.report]

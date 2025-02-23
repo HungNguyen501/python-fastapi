@@ -1,6 +1,6 @@
 """Model for table user"""
 from sqlalchemy.orm import Mapped
-from src.db.models.base_model import BaseModel, mapped_column
+from src.infrastructures.db.models.base_model import BaseModel, mapped_column
 
 
 class UserModel(BaseModel):  # pylint: disable=too-few-public-methods

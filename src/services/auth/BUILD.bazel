@@ -3,8 +3,8 @@ py_library(
     srcs = ["auth_service.py"],
     visibility = ["//visibility:public"],
     deps = [
-        "//src/db:database",
-        "//src/db:redis_db",
+        "//src/infrastructures/db:database",
+        "//src/infrastructures/db:redis_db",
         "//src/common:settings",
     ]
 )
@@ -23,11 +23,11 @@ py_test(
         "yourit",
     ],
     deps = [
-        "//src/services:auth_service",
-        "//src/services:user_service",
-        "//src/common:exceptions",
+        "//src/services/auth:auth_service",
+        "//src/services/business:user_service",
+        "//src/exceptions:exceptions",
         "//src/common:crypto",
         "//src/common:settings",
-        "//src/db:redis_db",
+        "//src/infrastructures/db:redis_db",
     ],
 )

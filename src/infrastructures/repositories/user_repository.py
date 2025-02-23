@@ -6,9 +6,9 @@ from fastapi import Depends
 from sqlalchemy import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import DBAPIError, IntegrityError
-from src.repositories.base_repository import BaseRepository
-from src.db.models import UserModel
-from src.db.database import get_db_session
+from src.infrastructures.repositories.base_repository import BaseRepository
+from src.infrastructures.db.models import UserModel
+from src.infrastructures.db.database import get_db_session
 from src.schemas.user_schema import UserInDB, UserCreate, UserUpdate
 
 

@@ -4,7 +4,7 @@ from uuid import UUID
 from typing import Generic, TypeVar
 
 from pydantic import BaseModel
-from src.repositories.base_repository import BaseRepository
+from src.infrastructures.repositories.base_repository import BaseRepository
 
 Repository = TypeVar("Repository", bound=BaseRepository)
 

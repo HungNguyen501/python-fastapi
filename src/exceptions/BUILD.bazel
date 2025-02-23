@@ -24,8 +24,8 @@ py_test(
         "yourit",
     ],
     deps = [
-        "//src/common:exception_handler",
-        "//src/common:exceptions",
+        "//src/exceptions:exception_handler",
+        "//src/exceptions:exceptions",
     ],
 )
 
@@ -43,6 +43,6 @@ py_test(
         "yourit",
     ],
     deps = [
-        "//src/common:exceptions",
+        "//src/exceptions:exceptions",
     ],
 )

@@ -1,7 +1,8 @@
 """Unit tests for user model"""
 import json
 
-from src.mocks import make_test_client
+from src.api.tests.mocks.test_client import make_test_client
+from src.common.faker import StringFaker
 
 
 def test_get_user():
@@ -9,7 +10,7 @@ def test_get_user():
     response = make_test_client().get(
         url="/api/v1/user/",
         headers={
-            "Authorization": "Bearer fake_token",
+            "Authorization": f"Bearer {StringFaker.random_token()}",
             "Accept": "application/json"
         },
     )
@@ -25,8 +26,8 @@ def test_create_user():
         url="/api/v1/user",
         headers={"Content-Type": "application/json"},
         data=json.dumps({
-            "name": "bob",
-            "password": "123"
+            "name": StringFaker.random_name(),
+            "password": StringFaker.random_password()
         })
     )
     assert response.status_code == 200
@@ -38,9 +39,7 @@ def test_update_user():
     response = make_test_client().put(
         url="/api/v1/user",
         headers={"Content-Type": "application/json"},
-        data=json.dumps({
-            "password": "123"
-        })
+        data=json.dumps({"password": StringFaker.random_password()})
     )
     assert response.status_code == 200
     assert response.text == '{"message":"updated"}'
@@ -51,7 +50,7 @@ def test_delete_user():
     response = make_test_client().delete(
         url="/api/v1/user/",
         headers={
-            "Authorization": "Bearer fake_token",
+            "Authorization": f"Bearer {StringFaker.random_token()}",
             "Accept": "application/json"
         },
     )

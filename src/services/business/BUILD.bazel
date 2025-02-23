@@ -3,8 +3,8 @@ py_library(
     srcs = ["user_service.py"],
     visibility = ["//visibility:public"],
     deps = [
-        "//src/db:database",
-        "//src/db:models",
+        "//src/infrastructures/db:database",
+        "//src/infrastructures/db:models",
         "//src/common:settings",
     ]
 )
@@ -23,10 +23,10 @@ py_test(
         "yourit",
     ],
     deps = [
-        "//src/services:user_service",
-        "//src/services:base_service",
-        "//src/repositories:user_repository",
-        "//src/common:exception_handler",
-        "//src/common:exceptions",
+        "//src/services/business:user_service",
+        "//src/services/business:base_service",
+        "//src/infrastructures/repositories:user_repository",
+        "//src/exceptions:exception_handler",
+        "//src/exceptions:exceptions",
     ],
 )

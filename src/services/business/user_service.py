@@ -13,7 +13,7 @@ from sqlalchemy.exc import DBAPIError
 from src.common.crypto import hash_password
 from src.exceptions.exception_handler import pegasus
 from src.exceptions.exceptions import NotFoundException, InvalidInputException
-from src.repositories import UserRepository
+from src.infrastructures.repositories.user_repository import UserRepository
 from src.services.business.base_service import BaseService
 from src.schemas.user_schema import (
     UserCreate,

@@ -4,7 +4,7 @@ from unittest.mock import call, AsyncMock, MagicMock
 import pytest
 from asyncpg.exceptions import InvalidRowCountInLimitClauseError, NotNullViolationError, UniqueViolationError
 from sqlalchemy.exc import DBAPIError, IntegrityError
-from src.repositories.user_repository import UserRepository
+from src.infrastructures.repositories.user_repository import UserRepository
 
 
 @pytest.fixture(name="mock_user_repositoy", scope="session")

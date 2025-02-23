@@ -7,7 +7,7 @@ import pytest
 import jwt
 from faker import Faker
 from freezegun import freeze_time
-from src.mocks import SettingsMock
+from src.common.tests.mocks import SettingsMock
 from src.common.crypto import hash_password
 from src.services.auth.auth_service import AuthService, get_current_user_uuid
 from src.schemas.user_schema import UserCreate, UserInDB

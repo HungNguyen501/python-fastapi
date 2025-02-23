@@ -24,7 +24,7 @@ py_test(
         "yourit",
     ],
     deps = [
-        "//src/repositories:base_repository",
+        "//src/infrastructures/repositories:base_repository",
     ],
 )
 
@@ -42,8 +42,8 @@ py_test(
         "yourit",
     ],
     deps = [
-        "//src/repositories:user_repository",
-        "//src/repositories:base_repository",
-        "//src/db:database",
+        "//src/infrastructures/repositories:user_repository",
+        "//src/infrastructures/repositories:base_repository",
+        "//src/infrastructures/db:database",
     ],
 )
