@@ -4,7 +4,11 @@
 name: ci-workflow
 
 on:
-  push
+  push:
+    paths-ignore:
+      - '*.md'
+      - '.gitignore'
+      - '.dockerignore'
 
 permissions:
   contents: read
