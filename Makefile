@@ -26,13 +26,13 @@ docker_compose_down:
 	@docker compose -f docker-compose.yaml down --volumes --remove-orphans
 
 migrate_info:
-	@cd src/infrastructures/db/sql && flyway info -user=local -password=local -url=jdbc:postgresql://localhost:5432/local && cd -
+	@cd src/infrastructures/databases/sql && flyway info -user=local -password=local -url=jdbc:postgresql://localhost:5432/local && cd -
 
 migrate:
-	@cd src/infrastructures/db/sql && flyway migrate -user=local -password=local -url=jdbc:postgresql://localhost:5432/local && cd -
+	@cd src/infrastructures/databases/sql && flyway migrate -user=local -password=local -url=jdbc:postgresql://localhost:5432/local && cd -
 
 clean_migrate:
-	@cd src/infrastructures/db/sql && flyway clean migrate -user=local -password=local -url=jdbc:postgresql://localhost:5432/local && cd -
+	@cd src/infrastructures/databases/sql && flyway clean migrate -user=local -password=local -url=jdbc:postgresql://localhost:5432/local && cd -
 
 githook:
 	@bash ./$(GithookScript) create_pre_commit_file
