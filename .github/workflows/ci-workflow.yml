@@ -5,8 +5,6 @@ name: ci-workflow
 
 on:
   workflow_dispatch:
-    branches:
-      - 'main'
 
 permissions:
   contents: read
@@ -25,6 +23,14 @@ jobs:
 
     steps:
     - uses: actions/checkout@v4
+
+    - name: Check branch
+      id: check-branch
+      run: |
+        if [[ "${{ github.ref_type }}" != "branch"  ]] || [[ "${{ github.ref_name }}" != "main"  ]]; then
+          echo "Do not deploy on not main branch"
+          exit 1
+        fi
 
     - name: Set up Python 3.12
       uses: actions/setup-python@v3
